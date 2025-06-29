@@ -1,0 +1,79 @@
+.about-page {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+.about-header {
+  background: #0d1b2a;
+  color: #fff;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.about-header h1 {
+  font-size: 2.5rem;
+}
+
+.about-header p {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  
+}
+
+.about-mission,
+.about-story,
+.about-services,
+.about-commitment,
+.about-contact {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 20px;
+  text-align: center;
+}
+
+
+.about-mission h2,
+.about-story h2,
+.about-services h2,
+.about-commitment h2,
+.about-contact h2 {
+  font-size: 2rem;
+  color: #0d1b2a;
+  
+}
+
+.about-mission p,
+.about-story p,
+.about-commitment p,
+.about-contact p {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.about-services ul {
+  list-style: none;
+  padding: 10px;
+  
+}
+
+.about-services li {
+  font-size: 1rem;
+  margin: 10px 0;
+  text-align: left;
+}
+
+.about-contact-button {
+  display: inline-block;
+  padding: 12px 25px;
+  font-size: 1rem;
+  border-radius: 25px;
+  text-decoration: none;
+  color: #0d1b2a;
+  background: #f0a500;
+  font-weight: bold;
+  transition: background 0.3s ease;
+}
+
+.about-contact-button:hover {
+  background: #ffbd33;
+}

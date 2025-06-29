@@ -1,0 +1,150 @@
+.services-page {
+  background-color: #f9f9f9;
+  padding-top: 10px;
+  color: #333;
+}
+
+/* Header */
+.services-header {
+  text-align: center;
+  margin-bottom: 40px;
+  padding: 20px;
+}
+
+.services-header h1 {
+  font-size: 2.5rem;
+  color: #0d1b2a;
+  margin-bottom: 10px;
+}
+
+.services-header p {
+  font-size: 1.1rem;
+  max-width: 700px;
+  margin: 0 auto;
+  color: #666;
+}
+
+/* Description Sections */
+
+
+.services-overview {
+  background-color: #fff;
+  padding: 40px 20px;
+  margin: 40px auto;
+  max-width: 90%;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+.services-overview h2 {
+  font-size: 2rem;
+  color: #0d1b2a;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.services-overview p {
+  font-size: 1.1rem;
+  color: #555;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.services-overview ul {
+  list-style: none;
+  padding: 0;
+}
+
+.services-overview li {
+  font-size: 1rem;
+  color: #444;
+  margin: 12px 0;
+  padding-left: 24px;
+  position: relative;
+}
+
+.services-overview li::before {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+
+
+
+/* Cards Grid */
+.services-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.service-card {
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  max-width: 300px;
+  text-align: center;
+  padding: 30px 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+}
+
+.service-card img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 20px;
+}
+
+.service-card h3 {
+  font-size: 1.5rem;
+  color: #0d1b2a;
+  margin-bottom: 10px;
+}
+
+.service-card p {
+  font-size: 1rem;
+  color: #555;
+}
+
+/* CTA Section */
+.services-cta {
+  background-color: #0d1b2a;
+  color: #fff;
+  text-align: center;
+  padding: 40px 20px;
+  margin-top: 40px;
+}
+
+.services-cta h3 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+  color: #f0a500;
+}
+
+.services-cta p {
+  max-width: 600px;
+  margin: 0 auto 20px;
+  font-size: 1.1rem;
+  color: #ddd;
+}
+
+.btn-contact {
+  display: inline-block;
+  padding: 12px 30px;
+  background-color: #f0a500;
+  color: #0d1b2a;
+  text-decoration: none;
+  border-radius: 30px;
+  transition: background-color 0.3s ease;
+}
+
+.btn-contact:hover {
+  background-color: #d18f00;
+}
