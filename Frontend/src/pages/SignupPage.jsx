@@ -1,18 +1,20 @@
-import React, { useState } from 'react';
-import './SignupPage.css';
-import Footer from '../components/Footer';
-import { Link } from 'react-router-dom';
+import React, { useState } from "react";
+import "./SignupPage.css";
+import Footer from "../components/Footer";
+import { Link } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const { signup } = useUserStore();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,23 +25,23 @@ const SignupPage = () => {
 
     // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match.');
+      setError("Passwords do not match.");
       return;
     }
 
     // Clear error
-    setError('');
+    setError("");
 
     // Here you would send data to backend
-    console.log('User Data:', formData);
-
+    console.log("User Data:", formData);
+    signup(formData);
     // Reset form
     setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      password: '',
-      confirmPassword: ''
+      name: "",
+      email: "",
+      phone: "",
+      password: "",
+      confirmPassword: "",
     });
   };
 
@@ -95,10 +97,13 @@ const SignupPage = () => {
               type="checkbox"
               checked={showPassword}
               onChange={() => setShowPassword(!showPassword)}
-            /> Show Passwords
+            />{" "}
+            Show Passwords
           </div>
 
-          <button type="submit" className="btn-signup">Sign Up</button>
+          <button type="submit" className="btn-signup">
+            Sign Up
+          </button>
         </form>
         <div className="login-link">
           Already have an account? <Link to="/login">Log in here</Link>

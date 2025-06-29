@@ -1,38 +1,48 @@
-import React, { useState } from 'react';
-import Footer from '../components/Footer';
-import './LoginPage.css';
+import React, { useState } from "react";
+import Footer from "../components/Footer";
+import "./LoginPage.css";
+import { useUserStore } from "../stores/useUserStore";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-
+  const { login } = useUserStore();
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const email = e.target[0].value;
+    const password = e.target[1].value;
+    login({ email, password });
+  };
   return (
     <div className="login-wrapper">
       <div className="login-container">
         <div className="login-card">
           <h2>Login to Your Account</h2>
-          <form>
-  <input type="email" placeholder="Email" required />
-  <div className="password-field">
-    <input
-      type={showPassword ? 'text' : 'password'}
-      placeholder="Password"
-      required
-    />
-    <button
-      type="button"
-      className="toggle-password"
-      onClick={() => setShowPassword((prev) => !prev)}
-    >
-      {showPassword ? 'Hide' : 'Show'}
-    </button>
-  </div>
-  <button type="submit" className="btn-login">Login</button>
-</form>
+          <form onSubmit={handleSubmit}>
+            <input type="email" placeholder="Email" required />
+            <div className="password-field">
+              <input
+                type={showPassword ? "text" : "password"}
+                placeholder="Password"
+                required
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword((prev) => !prev)}
+              >
+                {showPassword ? "Hide" : "Show"}
+              </button>
+            </div>
+            <button type="submit" className="btn-login">
+              Login
+            </button>
+          </form>
 
-<div className="signup-link">
-  <p>Don't have an account? <a href="/signup">Create an Account</a></p>
-</div>
-
+          <div className="signup-link">
+            <p>
+              Don't have an account? <a href="/signup">Create an Account</a>
+            </p>
+          </div>
         </div>
       </div>
       <Footer />
