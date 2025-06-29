@@ -128,7 +128,10 @@ export const refreshToken = async (req, res) => {
     }
 
     const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const storedTokenDoc = await Token.findOne({ userId: decoded.userId, refreshToken });
+    const storedTokenDoc = await Token.findOne({
+      userId: decoded.userId,
+      refreshToken,
+    });
 
     if (!storedTokenDoc) {
       return res.status(401).json({ message: "Invalid refresh token" });
