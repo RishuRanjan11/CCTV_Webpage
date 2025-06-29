@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import "./LoginPage.css";
 import { useUserStore } from "../stores/useUserStore";
+import { useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useUserStore();
   const handleSubmit = (e) => {
@@ -11,6 +13,7 @@ const LoginPage = () => {
     const email = e.target[0].value;
     const password = e.target[1].value;
     login({ email, password });
+    navigate("/");
   };
   return (
     <div className="login-wrapper">
