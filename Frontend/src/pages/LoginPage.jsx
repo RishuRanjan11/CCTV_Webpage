@@ -12,8 +12,7 @@ const LoginPage = () => {
     e.preventDefault();
     const email = e.target[0].value;
     const password = e.target[1].value;
-    login({ email, password });
-    navigate("/");
+    login({ email, password }, navigate);
   };
   return (
     <div className="login-wrapper">
