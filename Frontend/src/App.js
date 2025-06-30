@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Carousel from './components/Carousel';
@@ -12,8 +12,15 @@ import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
 import './App.css';
 import SignupPage from './pages/SignupPage';
+import { useUserStore } from "./stores/useUserStore";
 
 function App() {
+  const checkAuth = useUserStore((state) => state.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
   return (
     <>
       {/* Social Links */}
