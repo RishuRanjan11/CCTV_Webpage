@@ -25,6 +25,7 @@
   flex: 1 1 400px;
   display: flex;
   flex-direction: column;
+  padding:20px;
 }
 
 .contact-form input,

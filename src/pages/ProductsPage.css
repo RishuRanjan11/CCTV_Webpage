@@ -123,3 +123,90 @@
     max-width: 300px;
   }
 }
+
+.floating-checkout-btn {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #f0a500;
+  color: black;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 30px;
+  font-size: 1rem;
+  z-index: 1000;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: background 0.3s ease;
+}
+
+
+.floating-checkout-btn:hover {
+  background-color: #218838;
+}
+
+/* BACKDROP FADE-IN */
+.cart-popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  animation: backdropFade 0.3s ease forwards;
+}
+
+@keyframes backdropFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* MODAL POP-IN */
+.cart-popup-modal {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 300px;
+  width: 80%;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  animation: modalPop 0.4s ease forwards;
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* MODAL CONTENT */
+.cart-popup-modal p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+}
+
+.cart-popup-modal button {
+  margin: 10px;
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  background: #0d1b2a;
+  color: #fff;
+  transition: background 0.3s ease;
+}
+
+.cart-popup-modal button:hover {
+  background: #f0a500;
+  color: #0d1b2a;
+}

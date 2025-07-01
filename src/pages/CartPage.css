@@ -1,0 +1,164 @@
+/* MAIN CART PAGE */
+.cart-page {
+  max-width: 1000px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f7f7f7;
+  font-family: Arial, sans-serif;
+  min-height: 80vh;
+}
+
+.cart-page h2 {
+  text-align: center;
+  font-size: 2rem;
+  color: #0d1b2a;
+  margin-bottom: 30px;
+}
+
+/* EMPTY CART MESSAGE */
+.cart-page p {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #555;
+  padding: 50px 0;
+}
+
+/* CART TABLE STYLES */
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.cart-table th,
+.cart-table td {
+  padding: 15px;
+  text-align: center;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-table th {
+  background-color: #0d1b2a;
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.cart-table td img {
+  border-radius: 8px;
+}
+
+/* QUANTITY CONTROLS */
+.cart-table button {
+  background-color: #0d1b2a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  margin: 0 5px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.cart-table button:hover {
+  background-color: #f0a500;
+  color: #0d1b2a;
+}
+
+.quantity-value {
+  padding: 0 10px;
+  font-weight: 600;
+}
+
+/* REMOVE BUTTON */
+.cart-table td button:last-child {
+  background-color: #0d1b2a;
+}
+
+.cart-table td button:last-child:hover {
+  background-color: #f0a500;
+}
+
+/* CART SUMMARY SECTION */
+.cart-summary {
+  margin-top: 30px;
+  text-align: right;
+}
+
+.cart-summary h3 {
+  font-size: 1.5rem;
+  color: #0d1b2a;
+  margin-bottom: 20px;
+}
+
+/* CHECKOUT & CLEAR BUTTONS */
+.checkout-btn,
+.clear-btn {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  margin-left: 10px;
+  border-radius: 30px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.checkout-btn:hover {
+  background-color: #218838;
+}
+
+.clear-btn {
+  background-color: #dc3545;
+}
+
+.clear-btn:hover {
+  background-color: #c82333;
+}
+
+/* RESPONSIVENESS */
+@media (max-width: 768px) {
+  .cart-table thead {
+    display: none;
+  }
+
+  .cart-table,
+  .cart-table tbody,
+  .cart-table tr,
+  .cart-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .cart-table tr {
+    margin-bottom: 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background-color: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .cart-table td {
+    text-align: left;
+    padding: 15px;
+    border: none;
+    border-bottom: 1px solid #eee;
+    position: relative;
+  }
+
+  .cart-table td:before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #0d1b2a;
+  }
+
+  .cart-summary {
+    text-align: center;
+  }
+}

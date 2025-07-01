@@ -10,8 +10,11 @@ import ServicesPage from './pages/ServicesPage';
 import ProductsPage from './pages/ProductsPage';
 import ContactPage from './pages/ContactPage';
 import LoginPage from './pages/LoginPage';
-import './App.css';
 import SignupPage from './pages/SignupPage';
+import CartPage from './pages/CartPage';           // ✅ ADD THIS
+import { CartProvider } from './context/CartContext';
+import CheckoutPage from './pages/CheckoutPage';
+import './App.css';
 
 function App() {
   return (
@@ -26,28 +29,34 @@ function App() {
         <a href="tel:+911234567890"><img src="https://img.icons8.com/color/30/phone.png" alt="Call" /></a>
       </div>
 
-      <Navbar />
-      <Routes>
-        {/* Home Route */}
-        <Route
-          path="/"
-          element={
-            <>
-              <Carousel />
-              <Products />
-              <About />
-              <Footer />
-            </>
-          }
-        />
-        {/* About Route */}
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/products" element={<ProductsPage />} />
-        <Route path="/services" element={<ServicesPage />} />
-        <Route path="/contact" element={<ContactPage/>}/>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path='/signup' element={<SignupPage/>}/>
-      </Routes>
+      <CartProvider>
+        <Navbar />
+
+        <Routes>
+          {/* Home Route */}
+          <Route
+            path="/"
+            element={
+              <>
+                <Carousel />
+                <Products />
+                <About />
+                <Footer />
+              </>
+            }
+          />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/cart" element={<CartPage />} />      {/* ✅ YOUR NEW CART PAGE */}
+          <Route path="/checkout" element={<CheckoutPage />} />
+        </Routes>
+
+        <Footer />
+      </CartProvider>
     </>
   );
 }

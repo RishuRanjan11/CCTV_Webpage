@@ -1,17 +1,20 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import './ProductsPage.css';
-import Footer from '../components/Footer';
-
-
+import { CartContext } from '../context/CartContext';
+import { useNavigate } from 'react-router-dom';
 
 const ProductsPage = () => {
+  const { cartItems, addToCart, updateQuantity, removeFromCart } = useContext(CartContext);
+  const navigate = useNavigate();
+
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [hasSeenPopup, setHasSeenPopup] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
 
-  // ✅ Temporary Fake Products
   const fakeProducts = [
     {
       _id: "1",
@@ -40,34 +43,21 @@ const ProductsPage = () => {
   ];
 
   useEffect(() => {
-    // ❌ COMMENTED OUT BACKEND CALL UNTIL SERVER IS READY
-    /*
-    fetch("http://your-backend/api/products") 
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Network error");
-        }
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
-    */
-
-    // ✅ DIRECTLY USE FAKE PRODUCTS
     setProducts(fakeProducts);
     setLoading(false);
   }, []);
 
+ const handleAddToCart = (product) => {
+  const wasCartEmpty = cartItems.length === 0;
+  addToCart(product);
+  if (wasCartEmpty) {
+    setShowPopup(true);
+  }
+};
+
   const filteredProducts = products.filter((product) => {
     const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchCategory = filterCategory ? product.category === filterCategory : true;
-
     return matchSearch && matchCategory;
   });
 
@@ -99,20 +89,64 @@ const ProductsPage = () => {
 
       <div className="product-grid">
         {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => (
-            <div className="product-card" key={product._id}>
-              <img src={product.image} alt={product.name} />
-              <h3>{product.name}</h3>
-              <p>{product.description}</p>
-              <h4>₹{product.price}</h4>
-              <button>Order Now</button>
-            </div>
-          ))
+          filteredProducts.map((product) => {
+            const cartItem = cartItems.find(item => item._id === product._id);
+            const quantity = cartItem ? cartItem.quantity : 0;
+
+            return (
+              <div className="product-card" key={product._id}>
+                <img src={product.image} alt={product.name} />
+                <h3>{product.name}</h3>
+                <p>{product.description}</p>
+                <h4>₹{product.price}</h4>
+
+                {quantity === 0 ? (
+                  <button
+                    onClick={() => handleAddToCart(product)}
+                    className="order-now-btn"
+                  >
+                    Order Now
+                  </button>
+                ) : (
+                  <div className="quantity-controls">
+                    <button onClick={() => {
+                      if (quantity === 1) removeFromCart(product._id);
+                      else updateQuantity(product._id, quantity - 1);
+                    }}>-</button>
+                    <span>{quantity}</span>
+                    <button onClick={() => updateQuantity(product._id, quantity + 1)}>+</button>
+                  </div>
+                )}
+              </div>
+            );
+          })
         ) : (
           <div>No Products Found</div>
         )}
       </div>
-      <Footer />
+
+      {cartItems.length > 0 && (
+        <button
+          className="floating-checkout-btn"
+          onClick={() => navigate('/cart')}
+        >
+          🛒 Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+        </button>
+      )}
+
+      {showPopup && (
+  <div className="cart-popup-backdrop" onClick={() => setShowPopup(false)}>
+    <div className="cart-popup-modal" onClick={(e) => e.stopPropagation()}>
+      <p>✅ Item added to cart!</p>
+      <button onClick={() => {
+        setShowPopup(false);
+        navigate('/cart');
+      }}>Go to Cart</button>
+      <button onClick={() => setShowPopup(false)}>Continue Shopping</button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
