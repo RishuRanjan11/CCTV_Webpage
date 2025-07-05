@@ -2,10 +2,12 @@ import React, { useEffect, useState, useContext } from "react";
 import './ProductsPage.css';
 import { CartContext } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from "../stores/useUserStore";
 
 const ProductsPage = () => {
   const { cartItems, addToCart, updateQuantity, removeFromCart } = useContext(CartContext);
   const navigate = useNavigate();
+  const user = useUserStore((state) => state.user);
 
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,13 +49,17 @@ const ProductsPage = () => {
     setLoading(false);
   }, []);
 
- const handleAddToCart = (product) => {
-  const wasCartEmpty = cartItems.length === 0;
-  addToCart(product);
-  if (wasCartEmpty) {
-    setShowPopup(true);
-  }
-};
+  const handleAddToCart = (product) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    const wasCartEmpty = cartItems.length === 0;
+    addToCart(product);
+    if (wasCartEmpty) {
+      setShowPopup(true);
+    }
+  };
 
   const filteredProducts = products.filter((product) => {
     const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
