@@ -29,7 +29,15 @@ function App() {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    const handleStorage = (event) => {
+      if (event.key === "auth-sync") {
+        checkAuth(); // re-check auth status when notified
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
   return (
     <>
       {/* Social Links */}

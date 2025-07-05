@@ -26,6 +26,7 @@ export const useUserStore = create((set, get) => ({
   login: async ({ email, password }, navigate) => {
     try {
       const res = await axios.post("/auth/login", { email, password });
+      localStorage.setItem("auth-sync", Date.now());
       set({ user: res.data.user });
       console.log(res.data.user);
       navigate("/");
@@ -38,6 +39,7 @@ export const useUserStore = create((set, get) => ({
   logout: async () => {
     try {
       await axios.post("/auth/logout");
+      localStorage.setItem("auth-sync", Date.now());
       set({ user: null });
     } catch (error) {
       toast.error(
