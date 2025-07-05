@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
+import cartRoutes from "./routes/cart.route.js";
 
 dotenv.config({});
 
@@ -24,7 +25,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/auth", authRoutes);
-
+app.use("api/cart", cartRoutes);
 app.listen(PORT, (req, res) => {
   console.log(`Server is Running at http://localhost:${PORT}`);
   connectDB();
