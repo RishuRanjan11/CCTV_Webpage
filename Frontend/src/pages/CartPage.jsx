@@ -1,14 +1,22 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { CartContext } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from "../stores/useUserStore";
 import '../App.css';
 import './CartPage.css'
 
 function CartPage() {
     const { cartItems, removeFromCart, updateQuantity, clearCart } = useContext(CartContext);
     const navigate = useNavigate();
+    const user = useUserStore((state) => state.user);
+
+    useEffect(() => {
+        if (!user) {
+            navigate('/login');
+        }
+    }, [user, navigate]);
 
     const handleQuantityChange = (id, newQuantity) => {
         if (newQuantity < 1) return;

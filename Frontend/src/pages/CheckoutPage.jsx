@@ -1,13 +1,21 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { CartContext } from '../context/CartContext';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import './CheckoutPage.css';
 import { useNavigate } from 'react-router-dom';
+import { useUserStore } from "../stores/useUserStore";
 
 const CheckoutPage = () => {
   const { cartItems, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
+  const user = useUserStore((state) => state.user);
+
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+    }
+  }, [user, navigate]);
 
   const [formData, setFormData] = useState({
     name: '',
