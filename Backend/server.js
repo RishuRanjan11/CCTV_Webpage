@@ -26,6 +26,7 @@ app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/auth", authRoutes);
 app.use("api/cart", cartRoutes);
+
 app.listen(PORT, (req, res) => {
   console.log(`Server is Running at http://localhost:${PORT}`);
   connectDB();
