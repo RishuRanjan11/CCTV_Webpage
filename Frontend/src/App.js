@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from 'react';
 import { Routes, Route } from "react-router-dom";
 import Carousel from "./components/Carousel";
 import HomePage from "./pages/HomePage";
@@ -24,8 +24,21 @@ import AdminCoupons from "./pages/Admin/AdminCoupons";
 import AdminUsers from "./pages/Admin/AdminUsers";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import "./App.css";
-
+import { useUserStore } from "./stores/useUserStore";
 function App() {
+  const checkAuth = useUserStore((state) => state.checkAuth);
+
+  useEffect(() => {
+    checkAuth();
+  const handleStorage = (event) => {
+      if (event.key === "auth-sync") {
+        checkAuth(); // re-check auth status when notified
+      }
+    };
+
+    window.addEventListener("storage", handleStorage);
+    return () => window.removeEventListener("storage", handleStorage);
+  }, []);
   return (
     <>
       {/* Social Links */}
