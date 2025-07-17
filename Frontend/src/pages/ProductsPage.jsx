@@ -3,11 +3,13 @@ import "./ProductsPage.css";
 import { CartContext } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
+import { useUserStore } from "../stores/useUserStore";
 
 const ProductsPage = () => {
   const { cartItems, addToCart, updateQuantity, removeFromCart } =
     useContext(CartContext);
   const navigate = useNavigate();
+  const user = useUserStore((state) => state.user);
 
   const { products, fetchAllProducts } = useProductStore();
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,6 +24,10 @@ const ProductsPage = () => {
   }, [fetchAllProducts]);
 
   const handleAddToCart = (product) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
     const wasCartEmpty = cartItems.length === 0;
     addToCart(product);
     if (wasCartEmpty) {
@@ -69,7 +75,7 @@ const ProductsPage = () => {
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => {
             const cartItem = cartItems.find((item) => item._id === product._id);
-            const quantity = cartItem ? cartItem.quantity : 0;
+            const quantity = user && cartItem ? cartItem.quantity : 0;
 
             return (
               <div className="product-card" key={product._id}>
@@ -111,7 +117,7 @@ const ProductsPage = () => {
         )}
       </div>
 
-      {cartItems.length > 0 && (
+      {user && cartItems.length > 0 && (
         <button
           className="floating-checkout-btn"
           onClick={() => navigate("/cart")}
