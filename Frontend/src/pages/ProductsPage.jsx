@@ -1,51 +1,41 @@
 import React, { useEffect, useState, useContext } from "react";
-import './ProductsPage.css';
-import { CartContext } from '../context/CartContext';
-import { useNavigate } from 'react-router-dom';
+import "./ProductsPage.css";
+import { CartContext } from "../context/CartContext";
+import { useNavigate } from "react-router-dom";
+import { useProductStore } from "../stores/useProductStore";
 
 const ProductsPage = () => {
-  const { cartItems, addToCart, updateQuantity, removeFromCart } = useContext(CartContext);
+  const { cartItems, addToCart, updateQuantity, removeFromCart } =
+    useContext(CartContext);
   const navigate = useNavigate();
 
-  const [products, setProducts] = useState([]);
+  const { products, fetchAllProducts } = useProductStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [hasSeenPopup, setHasSeenPopup] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const res = await fetch('/api/products');
-      if (!res.ok) throw new Error('Failed to fetch products');
-      const data = await res.json();
-      setProducts(data.products);
-    } catch (err) {
-      setError('Error loading products.');
-      console.error(err);
-    } finally {
-      setLoading(false);
+    fetchAllProducts();
+  }, [fetchAllProducts]);
+
+  const handleAddToCart = (product) => {
+    const wasCartEmpty = cartItems.length === 0;
+    addToCart(product);
+    if (wasCartEmpty) {
+      setShowPopup(true);
     }
   };
 
-  fetchProducts();
-}, []);
-
-
- const handleAddToCart = (product) => {
-  const wasCartEmpty = cartItems.length === 0;
-  addToCart(product);
-  if (wasCartEmpty) {
-    setShowPopup(true);
-  }
-};
-
   const filteredProducts = products.filter((product) => {
-    const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchCategory = filterCategory ? product.category === filterCategory : true;
+    const matchSearch = product.name
+      .toLowerCase()
+      .includes(searchQuery.toLowerCase());
+    const matchCategory = filterCategory
+      ? product.category === filterCategory
+      : true;
     return matchSearch && matchCategory;
   });
 
@@ -78,7 +68,7 @@ const ProductsPage = () => {
       <div className="product-grid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => {
-            const cartItem = cartItems.find(item => item._id === product._id);
+            const cartItem = cartItems.find((item) => item._id === product._id);
             const quantity = cartItem ? cartItem.quantity : 0;
 
             return (
@@ -97,12 +87,20 @@ const ProductsPage = () => {
                   </button>
                 ) : (
                   <div className="quantity-controls">
-                    <button onClick={() => {
-                      if (quantity === 1) removeFromCart(product._id);
-                      else updateQuantity(product._id, quantity - 1);
-                    }}>-</button>
+                    <button
+                      onClick={() => {
+                        if (quantity === 1) removeFromCart(product._id);
+                        else updateQuantity(product._id, quantity - 1);
+                      }}
+                    >
+                      -
+                    </button>
                     <span>{quantity}</span>
-                    <button onClick={() => updateQuantity(product._id, quantity + 1)}>+</button>
+                    <button
+                      onClick={() => updateQuantity(product._id, quantity + 1)}
+                    >
+                      +
+                    </button>
                   </div>
                 )}
               </div>
@@ -116,25 +114,37 @@ const ProductsPage = () => {
       {cartItems.length > 0 && (
         <button
           className="floating-checkout-btn"
-          onClick={() => navigate('/cart')}
+          onClick={() => navigate("/cart")}
         >
-          🛒 Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)})
+          🛒 Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+          )
         </button>
       )}
 
       {showPopup && (
-  <div className="cart-popup-backdrop" onClick={() => setShowPopup(false)}>
-    <div className="cart-popup-modal" onClick={(e) => e.stopPropagation()}>
-      <p>✅ Item added to cart!</p>
-      <button onClick={() => {
-        setShowPopup(false);
-        navigate('/cart');
-      }}>Go to Cart</button>
-      <button onClick={() => setShowPopup(false)}>Continue Shopping</button>
-    </div>
-  </div>
-)}
-
+        <div
+          className="cart-popup-backdrop"
+          onClick={() => setShowPopup(false)}
+        >
+          <div
+            className="cart-popup-modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p>✅ Item added to cart!</p>
+            <button
+              onClick={() => {
+                setShowPopup(false);
+                navigate("/cart");
+              }}
+            >
+              Go to Cart
+            </button>
+            <button onClick={() => setShowPopup(false)}>
+              Continue Shopping
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

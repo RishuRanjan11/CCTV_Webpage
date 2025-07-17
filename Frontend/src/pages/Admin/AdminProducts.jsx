@@ -141,24 +141,14 @@
 
 // export default AdminProducts;
 
-
-
-
-
-
-
-
-
-
-
-
-import React, { useEffect, useState } from 'react';
-import AdminLayout from '../../components/AdminLayout';
-import ProductFormModal from '../../components/ProductFormModal';
-import './AdminStyles.css';
+import React, { useEffect, useState } from "react";
+import AdminLayout from "../../components/AdminLayout";
+import ProductFormModal from "../../components/ProductFormModal";
+import "./AdminStyles.css";
+import { useProductStore } from "../../stores/useProductStore";
 
 const AdminProducts = () => {
-  const [products, setProducts] = useState([]);
+  const { products, deleteProduct, fetchAllProducts } = useProductStore();
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -167,55 +157,35 @@ const AdminProducts = () => {
   // Fake local products for now
   const FAKE_PRODUCTS = [
     {
-      _id: '1',
-      title: '4K Ultra HD CCTV',
-      description: 'High-resolution camera',
+      _id: "1",
+      title: "4K Ultra HD CCTV",
+      description: "High-resolution camera",
       price: 9999,
-      category: 'CCTV',
-      imageUrl: 'https://via.placeholder.com/60'
+      category: "CCTV",
+      imageUrl: "https://via.placeholder.com/60",
     },
     {
-      _id: '2',
-      title: 'Night Vision CCTV',
-      description: 'Infrared camera',
+      _id: "2",
+      title: "Night Vision CCTV",
+      description: "Infrared camera",
       price: 7999,
-      category: 'CCTV',
-      imageUrl: 'https://via.placeholder.com/60'
-    }
+      category: "CCTV",
+      imageUrl: "https://via.placeholder.com/60",
+    },
   ];
 
   useEffect(() => {
-    // Instead of fetching from backend, load local data
-    setLoading(true);
-    setTimeout(() => {
-      setProducts(FAKE_PRODUCTS);
-      setLoading(false);
-    }, 500);
-  }, []);
+    fetchAllProducts();
+  }, [fetchAllProducts]);
 
   const handleSaveProduct = (formData) => {
-    const newProduct = {
-      _id: (products.length + 1).toString(),
-      title: formData.title,
-      description: formData.description,
-      price: formData.price,
-      category: formData.category,
-      imageUrl: formData.image ? URL.createObjectURL(formData.image) : 'https://via.placeholder.com/60'
-    };
-    if (editingProduct) {
-      setProducts(prev =>
-        prev.map(p => (p._id === editingProduct._id ? newProduct : p))
-      );
-    } else {
-      setProducts(prev => [...prev, newProduct]);
-    }
     setShowModal(false);
     setEditingProduct(null);
   };
 
   const handleDeleteProduct = (id) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
-      setProducts(prev => prev.filter(p => p._id !== id));
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      deleteProduct(id);
     }
   };
 
@@ -254,29 +224,38 @@ const AdminProducts = () => {
                   <td colSpan="5">No products found.</td>
                 </tr>
               ) : (
-                products.map(p => (
+                products.map((p) => (
                   <tr key={p._id}>
                     <td>
-                      {p.imageUrl ? (
+                      {p.image ? (
                         <img
-                          src={p.imageUrl}
-                          alt={p.title}
+                          src={p.image}
+                          alt={p.name}
                           style={{
-                            width: '60px',
-                            height: '60px',
-                            objectFit: 'cover'
+                            width: "60px",
+                            height: "60px",
+                            objectFit: "cover",
                           }}
                         />
                       ) : (
                         <span>No Image</span>
                       )}
                     </td>
-                    <td>{p.title}</td>
+                    <td>{p.name}</td>
                     <td>₹{p.price}</td>
                     <td>{p.category}</td>
                     <td>
-                      <button onClick={() => { setEditingProduct(p); setShowModal(true); }}>Edit</button>
-                      <button onClick={() => handleDeleteProduct(p._id)}>Delete</button>
+                      <button
+                        onClick={() => {
+                          setEditingProduct(p);
+                          setShowModal(true);
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button onClick={() => handleDeleteProduct(p._id)}>
+                        Delete
+                      </button>
                     </td>
                   </tr>
                 ))

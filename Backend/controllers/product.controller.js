@@ -29,7 +29,7 @@ export const getAllFeaturedProducts = async (req, res) => {
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, image, category } = req.body;
-
+    console.log(req.body);
     let cloudinaryResponse = null;
 
     if (image) {
@@ -47,9 +47,12 @@ export const createProduct = async (req, res) => {
         : "",
       category,
     });
-
+    console.log(product);
     res.status(201).json(product);
-  } catch (error) {}
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
 };
 
 export const deleteProduct = async (req, res) => {
@@ -73,6 +76,52 @@ export const deleteProduct = async (req, res) => {
     res.json({ message: "Product deleted successfully" });
   } catch (error) {
     console.log("Error in deleteProduct controller", error.message);
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
+export const editProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, image, category } = req.body;
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    // If new image is sent and it's different from the old one
+    if (image && image !== product.image) {
+      // Delete old image from Cloudinary if it exists
+      if (product.image) {
+        const publicId = product.image.split("/").pop().split(".")[0];
+        try {
+          await cloudinary.uploader.destroy(`products/${publicId}`);
+        } catch (error) {
+          console.log(
+            "Failed to delete old image from Cloudinary:",
+            error.message
+          );
+        }
+      }
+
+      // Upload new image to Cloudinary
+      const uploadedImage = await cloudinary.uploader.upload(image, {
+        folder: "products",
+      });
+      product.image = uploadedImage.secure_url;
+    }
+
+    // Update other fields
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.price = price || product.price;
+    product.category = category || product.category;
+
+    const updatedProduct = await product.save();
+    res.json(updatedProduct);
+  } catch (error) {
+    console.log("Error in editProduct controller", error.message);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };

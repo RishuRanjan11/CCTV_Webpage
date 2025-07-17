@@ -7,6 +7,7 @@ import {
   getRecommendedProducts,
   getProductsByCategory,
   toggleFeaturedProduct,
+  editProduct,
 } from "../controllers/product.controller.js";
 import { adminRoute, protectRoute } from "../middleware/auth.middleware.js";
 
@@ -19,6 +20,6 @@ router.get("/recommendations", getRecommendedProducts);
 router.post("/", protectRoute, adminRoute, createProduct);
 router.patch("/:id", protectRoute, adminRoute, toggleFeaturedProduct);
 router.delete("/:id", protectRoute, adminRoute, deleteProduct);
-
+router.put("/:id", protectRoute, adminRoute, editProduct);
 export default router;
 // This route handles product-related operations such as fetching all products, featured products, creating new products, and deleting products.
