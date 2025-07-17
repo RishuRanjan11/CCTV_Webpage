@@ -184,6 +184,28 @@
 }
 
 /* ====== Modal ====== */
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  margin: 0 4px;
+  border: 1px solid #ddd;
+  background-color: #f8f8f8;
+  cursor: pointer;
+}
+
+.pagination button.active {
+  background-color: #0d1b2a;
+  color: #fff;
+  border-color: #0d1b2a;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;

@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 export const useUserStore = create((set, get) => ({
   user: null,
   loading: false,
-  checkingAuth: false,
+  checkingAuth: true,
 
   signup: async ({ name, email, phone, password }) => {
     set({ loading: true });
@@ -27,9 +27,15 @@ export const useUserStore = create((set, get) => ({
     try {
       const res = await axios.post("/auth/login", { email, password });
       localStorage.setItem("auth-sync", Date.now());
-      set({ user: res.data.user });
-      console.log(res.data.user);
-      navigate("/");
+      const user = res.data.user;
+      set({ user: user });
+      toast.success("Login successful!");
+
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     } catch (error) {
       set({ loading: false });
       toast.error(error.response.data.message || "An error occurred");
@@ -49,7 +55,6 @@ export const useUserStore = create((set, get) => ({
   },
 
   checkAuth: async () => {
-    set({ checkingAuth: true });
     try {
       const response = await axios.get("/auth/profile");
       set({ user: response.data, checkingAuth: false });

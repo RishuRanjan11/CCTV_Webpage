@@ -14,6 +14,10 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       trim: true,
     },
+    phone: {
+      type: String,
+      required: [true, "Phone is required"],
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -35,6 +39,10 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["customer", "admin"],
       default: "customer",
+    },
+     isFirstTimeBuyer: {
+      type: Boolean,
+      default: true, 
     },
   },
   {
