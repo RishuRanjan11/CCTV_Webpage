@@ -64,7 +64,7 @@ const About = () => {
         <p>Have questions or need help? We’d love to hear from you!</p>
         <a href="/contact" className="about-contact-button">Contact Us</a>
       </section>
-      <Footer/>
+      
     </div>
   );
 };

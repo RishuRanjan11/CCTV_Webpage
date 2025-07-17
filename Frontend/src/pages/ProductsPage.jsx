@@ -2,12 +2,10 @@ import React, { useEffect, useState, useContext } from "react";
 import './ProductsPage.css';
 import { CartContext } from '../context/CartContext';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from "../stores/useUserStore";
 
 const ProductsPage = () => {
   const { cartItems, addToCart, updateQuantity, removeFromCart } = useContext(CartContext);
   const navigate = useNavigate();
-  const user = useUserStore((state) => state.user);
 
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,49 +15,33 @@ const ProductsPage = () => {
   const [hasSeenPopup, setHasSeenPopup] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
-  const fakeProducts = [
-    {
-      _id: "1",
-      name: "4K Ultra HD CCTV",
-      description: "Top-class camera for residential & office surveillance",
-      price: 9999,
-      category: "cctv",
-      image: "https://picsum.photos/300/200?camera1",
-    },
-    {
-      _id: "2",
-      name: "Night Vision CCTV",
-      description: "See clearly even in pitch darkness",
-      price: 7999,
-      category: "cctv",
-      image: "https://picsum.photos/300/200?camera2",
-    },
-    {
-      _id: "3",
-      name: "Modern DVR",
-      description: "High-capacity digital video recorder for CCTV",
-      price: 12999,
-      category: "dvr",
-      image: "https://picsum.photos/300/200?camera3",
-    },
-  ];
-
   useEffect(() => {
-    setProducts(fakeProducts);
-    setLoading(false);
-  }, []);
-
-  const handleAddToCart = (product) => {
-    if (!user) {
-      navigate("/login");
-      return;
-    }
-    const wasCartEmpty = cartItems.length === 0;
-    addToCart(product);
-    if (wasCartEmpty) {
-      setShowPopup(true);
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch('/api/products');
+      if (!res.ok) throw new Error('Failed to fetch products');
+      const data = await res.json();
+      setProducts(data.products);
+    } catch (err) {
+      setError('Error loading products.');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  fetchProducts();
+}, []);
+
+
+ const handleAddToCart = (product) => {
+  const wasCartEmpty = cartItems.length === 0;
+  addToCart(product);
+  if (wasCartEmpty) {
+    setShowPopup(true);
+  }
+};
 
   const filteredProducts = products.filter((product) => {
     const matchSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase());

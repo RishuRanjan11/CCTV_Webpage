@@ -109,7 +109,7 @@ const SignupPage = () => {
           Already have an account? <Link to="/login">Log in here</Link>
         </div>
       </div>
-      <Footer />
+      
     </div>
   );
 };

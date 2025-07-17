@@ -89,7 +89,7 @@ const ServicesPage = () => {
                 <a href="/contact" className="btn-contact">Contact Us</a>
             </section>
 
-            <Footer />
+            
         </div>
     );
 };
