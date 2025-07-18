@@ -7,11 +7,13 @@
   color: #fff;
 }
 
-.admin-navbar-logo a {
+.admin-navbar-logo {
   color: #f0a500;
   text-decoration: none;
   font-size: 1.25rem;
   font-weight: bold;
+  display: flex;
+  gap: 10px;
 }
 
 .admin-navbar-links {
@@ -22,7 +24,8 @@
   padding: 0;
 }
 
-.admin-navbar-links a, .admin-navbar-links button {
+.admin-navbar-links a,
+.admin-navbar-links button {
   color: #fff;
   text-decoration: none;
   background: none;
@@ -32,6 +35,7 @@
   transition: color 0.3s;
 }
 
-.admin-navbar-links a:hover, .admin-navbar-links button:hover {
+.admin-navbar-links a:hover,
+.admin-navbar-links button:hover {
   color: #f0a500;
 }

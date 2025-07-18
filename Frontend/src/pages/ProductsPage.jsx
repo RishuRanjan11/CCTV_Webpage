@@ -1,49 +1,113 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./ProductsPage.css";
-import { CartContext } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
 import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from "../stores/useCartStore";
 
 const ProductsPage = () => {
-  const { cartItems, addToCart, updateQuantity, removeFromCart } =
-    useContext(CartContext);
+  const { cartItems, addToCart, updateQuantity } = useCartStore();
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
 
   const { products, fetchAllProducts } = useProductStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasSeenPopup, setHasSeenPopup] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 25;
 
   useEffect(() => {
     fetchAllProducts();
   }, [fetchAllProducts]);
 
-  const handleAddToCart = (product) => {
+  // Reset to first page whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
+  const handleInitialAddToCart = (product) => {
     if (!user) {
       navigate("/login");
       return;
     }
-    const wasCartEmpty = cartItems.length === 0;
-    addToCart(product);
-    if (wasCartEmpty) {
-      setShowPopup(true);
-    }
+    addToCart(product)
+      .then(() => {
+        // This now only runs on success
+        setShowPopup(true);
+      })
+      .catch(() => {
+        // The error is already toasted in the store, so we can just console log here.
+        console.error("Add to cart failed, not showing popup.");
+      });
   };
 
   const filteredProducts = products.filter((product) => {
     const matchSearch = product.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    const matchCategory = filterCategory
-      ? product.category === filterCategory
-      : true;
-    return matchSearch && matchCategory;
+    return matchSearch;
   });
+
+  // Pagination Logic
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const renderPagination = useCallback(() => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const pageNeighbours = 1;
+
+    pageNumbers.push(1);
+
+    if (currentPage > pageNeighbours + 2) {
+      pageNumbers.push("...");
+    }
+
+    const startPage = Math.max(2, currentPage - pageNeighbours);
+    const endPage = Math.min(totalPages - 1, currentPage + pageNeighbours);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    if (currentPage < totalPages - pageNeighbours - 1) {
+      pageNumbers.push("...");
+    }
+
+    if (totalPages > 1 && !pageNumbers.includes(totalPages)) {
+      pageNumbers.push(totalPages);
+    }
+
+    return (
+      <div className="pagination">
+        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
+        {pageNumbers.map((page, index) => {
+          if (page === "...") {
+            return <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>;
+          }
+          return (
+            <button key={page} onClick={() => handlePageChange(page)} className={currentPage === page ? "active" : ""}>
+              {page}
+            </button>
+          );
+        })}
+        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
+      </div>
+    );
+  }, [currentPage, totalPages]);
 
   if (loading) return <div>Loading Products...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -60,21 +124,14 @@ const ProductsPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          <option value="cctv">CCTV</option>
-          <option value="dvr">DVR</option>
-          <option value="accessory">Accessory</option>
-        </select>
       </div>
 
       <div className="product-grid">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => {
-            const cartItem = cartItems.find((item) => item._id === product._id);
+        {currentProducts.length > 0 ? (
+          currentProducts.map((product) => {
+            const cartItem = cartItems.find(
+              (item) => item.product && item.product._id === product._id
+            );
             const quantity = user && cartItem ? cartItem.quantity : 0;
 
             return (
@@ -86,7 +143,7 @@ const ProductsPage = () => {
 
                 {quantity === 0 ? (
                   <button
-                    onClick={() => handleAddToCart(product)}
+                    onClick={() => handleInitialAddToCart(product)}
                     className="order-now-btn"
                   >
                     Order Now
@@ -95,8 +152,7 @@ const ProductsPage = () => {
                   <div className="quantity-controls">
                     <button
                       onClick={() => {
-                        if (quantity === 1) removeFromCart(product._id);
-                        else updateQuantity(product._id, quantity - 1);
+                        updateQuantity(product._id, quantity - 1);
                       }}
                     >
                       -
@@ -113,16 +169,20 @@ const ProductsPage = () => {
             );
           })
         ) : (
-          <div>No Products Found</div>
+          <div className="no-products">No Products Found</div>
         )}
       </div>
+
+      {renderPagination()}
 
       {user && cartItems.length > 0 && (
         <button
           className="floating-checkout-btn"
           onClick={() => navigate("/cart")}
         >
-          🛒 Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+          🛒 Checkout ({cartItems.reduce((sum, item) => {
+            return item.product ? sum + item.quantity : sum;
+          }, 0)}
           )
         </button>
       )}

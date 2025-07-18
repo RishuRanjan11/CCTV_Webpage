@@ -1,7 +1,8 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useUserStore } from '../stores/useUserStore';
-import './AdminNavbar.css';
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
+import "./AdminNavbar.css";
+import { Home } from "lucide-react";
 
 const AdminNavbar = () => {
   const navigate = useNavigate();
@@ -10,12 +11,17 @@ const AdminNavbar = () => {
 
   const handleLogout = async () => {
     await logout();
-    navigate('/');
+    navigate("/");
   };
   return (
     <nav className="admin-navbar">
       <div className="admin-navbar-logo">
-        <Link to="/admin/dashboard">Admin Panel</Link>
+        <Link to="/">
+          <Home color="#FFF" />
+        </Link>
+        <Link to="/admin/dashboard" style={{ color: "#f0a500" }}>
+          Admin Panel
+        </Link>
       </div>
       <ul className="admin-navbar-links">
         <li>

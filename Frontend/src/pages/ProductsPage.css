@@ -107,6 +107,49 @@
   color: #555;
 }
 
+/* PAGINATION STYLES */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.pagination button {
+  padding: 8px 14px;
+  margin: 0 4px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  border-radius: 6px;
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination button.active {
+  background-color: #0d1b2a;
+  color: #fff;
+  border-color: #0d1b2a;
+}
+
+.pagination button:not(:disabled):hover {
+  background-color: #f0f0f0;
+}
+
+.pagination-ellipsis {
+  padding: 8px 6px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* RESPONSIVENESS */
 @media (max-width: 768px) {
   .search-filter-container {

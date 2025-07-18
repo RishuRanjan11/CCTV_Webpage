@@ -26,17 +26,18 @@ const SignupPage = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // Check if passwords match
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
+    const phoneRegex = /^\d{10}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setError("Phone number must be exactly 10 digits.");
+      return;
+    }
     // Clear error
     setError("");
 
-    // Here you would send data to backend
-    console.log("User Data:", formData);
     setFormData({
       name: "",
       email: "",

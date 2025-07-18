@@ -16,7 +16,7 @@ import couponRoutes from "./routes/coupon.route.js";
 dotenv.config({});
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000; // Changed port to 5000
 
 const __dirname = path.resolve();
 
@@ -31,12 +31,11 @@ app.use(cookieParser());
 app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/auth", authRoutes);
-app.use("api/cart", cartRoutes);
+app.use("/api/cart", cartRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/coupons", couponRoutes);
 app.listen(PORT, (req, res) => {
-  console.log(`Server is Running at http://localhost:${PORT}`);
   connectDB();
 });

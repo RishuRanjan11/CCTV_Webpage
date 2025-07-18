@@ -90,9 +90,48 @@
   box-shadow: 0 4px 20px rgba(0,0,0,.1);
 }
 
+.admin-table-wrapper {
+  overflow-x: auto; /* Make table scrollable on small screens */
+  -webkit-overflow-scrolling: touch;
+}
+
 .admin-page h2 {
   color: #0d1b2a;
   margin-bottom: 20px;
+}
+
+/* ====== Filters ====== */
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.admin-filters .filter-input,
+.admin-filters .filter-select {
+  flex: 1 1 180px;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+.admin-filters .filter-reset-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  background-color: #6c757d;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.admin-filters .filter-reset-btn:hover {
+  background-color: #5a6268;
 }
 
 /* ====== Buttons ====== */
@@ -162,6 +201,23 @@
   background: #f9f9f9;
 }
 
+.admin-table th.sortable {
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  user-select: none; /* Prevent text selection on click */
+}
+
+.admin-table th.sortable:hover {
+  background-color: #1b2a38; /* A slightly lighter shade of the header */
+}
+
+.admin-table td.clickable-cell {
+  cursor: pointer;
+  color: #007bff;
+  font-weight: 500;
+  text-decoration: underline;
+}
+
 /* ====== Admin Cards ====== */
 .admin-cards {
   display: flex;
@@ -206,6 +262,37 @@
   border-color: #0d1b2a;
 }
 
+.admin-chart-container {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+.admin-chart-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  flex-wrap: wrap;
+}
+
+.admin-chart-filters label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-ellipsis {
+  padding: 8px 6px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -221,7 +308,7 @@
 .modal-content {
   background: #fff;
   padding: 30px;
-  border-radius: 12px;
+  border-radius: 8px;
   max-width: 500px;
   width: 90%;
   box-shadow: 0 10px 30px rgba(0,0,0,0.2);
@@ -276,7 +363,8 @@
 
 .modal-buttons {
   display: flex;
-  justify-content: space-between;
+  gap: 10px;
+  justify-content: flex-end;
   margin-top: 10px;
 }
 
@@ -388,4 +476,50 @@
 .coupon-form button:hover {
   background: #f0a500;
   color: #0d1b2a;
+}
+
+
+/* Add this to d:\cctv_code\CCTV_Webpage\Frontend\src\pages\Admin\AdminStyles.css */
+
+.status-select {
+  border: none;
+  background-color: transparent;
+  padding: 5px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+/* Order Details Modal Specifics */
+.order-details-modal {
+  max-width: 600px;
+  text-align: left;
+}
+
+.order-details-modal h3 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.order-details-modal h4 {
+  margin-top: 20px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
+}
+
+.order-details-products {
+  list-style-type: none;
+  padding-left: 20px;
+  margin: 0;
+}
+
+.order-details-total {
+  font-size: 1.1rem;
+  font-weight: bold;
+  text-align: right;
+  margin-top: 20px;
 }

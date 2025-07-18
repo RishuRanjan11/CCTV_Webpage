@@ -66,7 +66,6 @@ export const validateCoupon = async (req, res) => {
       isFirstTimeOnly: coupon.isFirstTimeOnly,
     });
   } catch (error) {
-    console.log("Error in validateCoupon controller", error.message);
     res.status(500).json({ message: "Server Error", error: error.message });
   }
 };

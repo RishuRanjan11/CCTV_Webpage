@@ -68,7 +68,6 @@ export const signup = async (req, res) => {
       message: "User created successfully",
     });
   } catch (error) {
-    console.log("Error in signup controller", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -98,7 +97,6 @@ export const login = async (req, res) => {
       res.status(400).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    console.log("Error in login controller", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -119,7 +117,6 @@ export const logout = async (req, res) => {
     res.clearCookie("refreshToken");
     res.json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -157,7 +154,6 @@ export const refreshToken = async (req, res) => {
 
     res.json({ message: "Token refreshed successfully" });
   } catch (error) {
-    console.log("Error in refresh token controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -166,7 +162,6 @@ export const getProfile = async (req, res) => {
   try {
     res.json(req.user);
   } catch (error) {
-    console.log("Error in getProfile controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -229,22 +224,6 @@ export const verifyOTP = async (req, res) => {
 
     await Otp.deleteOne({ email });
     res.status(200).json({ message: "OTP verified successfully" });
-    //   const user = await User.create({ name, email, password, phone });
-
-    //   const { accessToken, refreshToken } = generateToken(user._id);
-    //   await storeRefreshToken(user._id, refreshToken);
-    //   setCookies(res, accessToken, refreshToken);
-
-    //   res.status(201).json({
-    //     user: {
-    //       _id: user._id,
-    //       name: user.name,
-    //       email: user.email,
-    //       phone: user.phone,
-    //       role: user.role,
-    //     },
-    //     message: "User created successfully",
-    //   });
   } catch (error) {
     console.log("Error verifying OTP", error.message);
     res.status(500).json({ message: "Server error" });
@@ -327,5 +306,63 @@ export const resetPassword = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal server error" });
+  }
+};
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update only the fields that are provided
+    if (phone) user.phone = phone;
+
+    const updatedUser = await user.save();
+
+    // Return the updated user object, excluding the password
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      role: updatedUser.role,
+    });
+  } catch (error) {
+    console.error("Error in updateUserProfile:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// @description Change user password
+// @route PUT /api/auth/change-password
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the current password is correct
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect current password." });
+    }
+
+    user.password = newPassword; // The pre-save hook will hash this
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully." });
+  } catch (error) {
+    console.error("Error in changePassword:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
   }
 };
