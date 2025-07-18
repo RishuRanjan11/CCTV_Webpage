@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import "./SignupPage.css";
 import Footer from "../components/Footer";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
+import { useOtpStore } from "../stores/useOtpStore";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +16,8 @@ const SignupPage = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { signup } = useUserStore();
+  const { sendOtp } = useOtpStore();
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -34,8 +37,6 @@ const SignupPage = () => {
 
     // Here you would send data to backend
     console.log("User Data:", formData);
-    signup(formData);
-    // Reset form
     setFormData({
       name: "",
       email: "",
@@ -43,6 +44,10 @@ const SignupPage = () => {
       password: "",
       confirmPassword: "",
     });
+    navigate("/signup/verify", { state: formData });
+    sendOtp(formData.email);
+    // signup(formData);
+    // Reset form
   };
 
   return (
@@ -109,7 +114,6 @@ const SignupPage = () => {
           Already have an account? <Link to="/login">Log in here</Link>
         </div>
       </div>
-      
     </div>
   );
 };

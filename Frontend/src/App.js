@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Carousel from "./components/Carousel";
 import HomePage from "./pages/HomePage";
@@ -25,12 +25,13 @@ import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn";
 import "./App.css";
 import { useUserStore } from "./stores/useUserStore";
+import OtpVerification from "./components/OtpVerification";
 function App() {
   const checkAuth = useUserStore((state) => state.checkAuth);
 
   useEffect(() => {
     checkAuth();
-  const handleStorage = (event) => {
+    const handleStorage = (event) => {
       if (event.key === "auth-sync") {
         checkAuth(); // re-check auth status when notified
       }
@@ -137,6 +138,18 @@ function App() {
             }
           />
           <Route
+            path="/signup/verify"
+            element={
+              <RedirectIfLoggedIn>
+                <>
+                  <Navbar />
+                  <OtpVerification />
+                  <Footer />
+                </>
+              </RedirectIfLoggedIn>
+            }
+          />
+          <Route
             path="/signup"
             element={
               <RedirectIfLoggedIn>
@@ -172,25 +185,44 @@ function App() {
           {/* Admin Routes WITHOUT Customer Navbar/Footer */}
           <Route
             path="/admin/dashboard"
-            element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>}
+            element={
+              <ProtectedAdminRoute>
+                <AdminDashboard />
+              </ProtectedAdminRoute>
+            }
           />
           <Route
             path="/admin/products"
-            element={<ProtectedAdminRoute><AdminProducts /></ProtectedAdminRoute>}
+            element={
+              <ProtectedAdminRoute>
+                <AdminProducts />
+              </ProtectedAdminRoute>
+            }
           />
           <Route
             path="/admin/orders"
-            element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>}
+            element={
+              <ProtectedAdminRoute>
+                <AdminOrders />
+              </ProtectedAdminRoute>
+            }
           />
           <Route
             path="/admin/coupons"
-            element={<ProtectedAdminRoute><AdminCoupons /></ProtectedAdminRoute>}
+            element={
+              <ProtectedAdminRoute>
+                <AdminCoupons />
+              </ProtectedAdminRoute>
+            }
           />
           <Route
             path="/admin/users"
-            element={<ProtectedAdminRoute><AdminUsers /></ProtectedAdminRoute>}
+            element={
+              <ProtectedAdminRoute>
+                <AdminUsers />
+              </ProtectedAdminRoute>
+            }
           />
-    
         </Routes>
       </CartProvider>
     </>

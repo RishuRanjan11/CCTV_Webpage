@@ -5,6 +5,8 @@ import {
   signup,
   refreshToken,
   getProfile,
+  sendOTP,
+  verifyOTP,
 } from "../controllers/auth.controller.js";
 import { protectRoute } from "../middleware/auth.middleware.js";
 
@@ -15,5 +17,7 @@ router.post("/login", login);
 router.post("/logout", logout);
 router.post("/refresh-token", refreshToken);
 router.get("/profile", protectRoute, getProfile);
+router.post("/send-otp", sendOTP);
+router.post("/verify-otp", verifyOTP);
 
 export default router;

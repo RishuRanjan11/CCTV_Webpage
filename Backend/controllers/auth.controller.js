@@ -1,6 +1,8 @@
+import nodemailer from "nodemailer";
 import User from "../models/user.model.js";
 import Token from "../models/token.model.js";
 import jwt from "jsonwebtoken";
+import Otp from "../models/otp.model.js";
 
 const generateToken = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -165,5 +167,85 @@ export const getProfile = async (req, res) => {
   } catch (error) {
     console.log("Error in getProfile controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const sendOTP = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const userExists = await User.findOne({ email });
+    if (userExists) {
+      return res.status(400).json({ message: "User already exists" });
+    }
+
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+
+    const existingOtp = await Otp.findOne({ email });
+    if (existingOtp) await Otp.deleteOne({ email });
+
+    await Otp.create({
+      email,
+      otp: otpCode,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min expiry
+    });
+
+    // Email Transport
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER, // your email
+        pass: process.env.EMAIL_PASS, // app password
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"CCTV Digital Surveillance" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Your OTP Code",
+      text: `Your OTP is ${otpCode}. It will expire in 5 minutes.`,
+    });
+
+    res.json({ message: "OTP sent to email" });
+  } catch (error) {
+    console.log("Error sending OTP", error.message);
+    res.status(500).json({ message: "Failed to send OTP" });
+  }
+};
+
+export const verifyOTP = async (req, res) => {
+  const { email, otp, name, phone, password } = req.body;
+
+  try {
+    const otpRecord = await Otp.findOne({ email });
+
+    if (
+      !otpRecord ||
+      otpRecord.otp !== otp ||
+      otpRecord.expiresAt < new Date()
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    await Otp.deleteOne({ email });
+    res.status(200).json({ message: "OTP verified successfully" });
+    //   const user = await User.create({ name, email, password, phone });
+
+    //   const { accessToken, refreshToken } = generateToken(user._id);
+    //   await storeRefreshToken(user._id, refreshToken);
+    //   setCookies(res, accessToken, refreshToken);
+
+    //   res.status(201).json({
+    //     user: {
+    //       _id: user._id,
+    //       name: user.name,
+    //       email: user.email,
+    //       phone: user.phone,
+    //       role: user.role,
+    //     },
+    //     message: "User created successfully",
+    //   });
+  } catch (error) {
+    console.log("Error verifying OTP", error.message);
+    res.status(500).json({ message: "Server error" });
   }
 };
