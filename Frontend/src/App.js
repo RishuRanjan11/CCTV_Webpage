@@ -16,13 +16,13 @@ import SignupPage from "./pages/SignupPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import { CartProvider } from "./context/CartContext";
-import AdminLogin from "./pages/Admin/AdminLogin";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminProducts from "./pages/Admin/AdminProducts";
 import AdminOrders from "./pages/Admin/AdminOrders";
 import AdminCoupons from "./pages/Admin/AdminCoupons";
 import AdminUsers from "./pages/Admin/AdminUsers";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn";
 import "./App.css";
 import { useUserStore } from "./stores/useUserStore";
 function App() {
@@ -127,21 +127,25 @@ function App() {
           <Route
             path="/login"
             element={
-              <>
-                <Navbar />
-                <LoginPage />
-                <Footer />
-              </>
+              <RedirectIfLoggedIn>
+                <>
+                  <Navbar />
+                  <LoginPage />
+                  <Footer />
+                </>
+              </RedirectIfLoggedIn>
             }
           />
           <Route
             path="/signup"
             element={
-              <>
-                <Navbar />
-                <SignupPage />
-                <Footer />
-              </>
+              <RedirectIfLoggedIn>
+                <>
+                  <Navbar />
+                  <SignupPage />
+                  <Footer />
+                </>
+              </RedirectIfLoggedIn>
             }
           />
           <Route
@@ -166,12 +170,27 @@ function App() {
           />
 
           {/* Admin Routes WITHOUT Customer Navbar/Footer */}
-          <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/products" element={<AdminProducts />} />
-          <Route path="/admin/orders" element={<AdminOrders />} />
-          <Route path="/admin/coupons" element={<AdminCoupons />} />
-          <Route path="/admin/users" element={<AdminUsers />} />
+          <Route
+            path="/admin/dashboard"
+            element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>}
+          />
+          <Route
+            path="/admin/products"
+            element={<ProtectedAdminRoute><AdminProducts /></ProtectedAdminRoute>}
+          />
+          <Route
+            path="/admin/orders"
+            element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>}
+          />
+          <Route
+            path="/admin/coupons"
+            element={<ProtectedAdminRoute><AdminCoupons /></ProtectedAdminRoute>}
+          />
+          <Route
+            path="/admin/users"
+            element={<ProtectedAdminRoute><AdminUsers /></ProtectedAdminRoute>}
+          />
+    
         </Routes>
       </CartProvider>
     </>
