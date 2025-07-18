@@ -21,6 +21,9 @@ const AdminNavbar = () => {
         <li><Link to="/admin/dashboard">Dashboard</Link></li>
         <li><Link to="/admin/products">Products</Link></li>
         <li><Link to="/admin/orders">Orders</Link></li>
+        <li>
+          <Link to="/admin/coupons">Coupons</Link>
+        </li>
         <li><Link to="/admin/users">Users</Link></li>
         <li><button onClick={handleLogout} className="admin-logout-btn">Logout</button></li>
       </ul>
