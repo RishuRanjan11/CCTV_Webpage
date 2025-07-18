@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useUserStore } from '../stores/useUserStore';
 import { useOrderStore } from '../stores/useOrderStore';
 import './MyAccount.css';
@@ -105,6 +105,50 @@ const MyAccount = () => {
     }
   };
 
+  const renderPagination = useCallback(() => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const pageNeighbours = 1;
+
+    pageNumbers.push(1);
+
+    if (currentPage > pageNeighbours + 2) {
+      pageNumbers.push("...");
+    }
+
+    const startPage = Math.max(2, currentPage - pageNeighbours);
+    const endPage = Math.min(totalPages - 1, currentPage + pageNeighbours);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    if (currentPage < totalPages - pageNeighbours - 1) {
+      pageNumbers.push("...");
+    }
+
+    if (totalPages > 1 && !pageNumbers.includes(totalPages)) {
+      pageNumbers.push(totalPages);
+    }
+
+    return (
+      <div className="pagination">
+        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
+        {pageNumbers.map((page, index) => {
+          if (page === "...") {
+            return <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>;
+          }
+          return (
+            <button key={page} onClick={() => paginate(page)} className={currentPage === page ? "active" : ""}>
+              {page}
+            </button>
+          );
+        })}
+        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
+      </div>
+    );
+  }, [currentPage, totalPages]);
+
   if (!user) {
     // This case is mostly handled by the protected route, but it's good practice.
     return <p>Please log in to view your account.</p>;
@@ -188,15 +232,7 @@ const MyAccount = () => {
                 </div>
               ))}
             </div>
-            {totalPages > 1 && (
-              <div className="pagination">
-                <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
-                {[...Array(totalPages).keys()].map((number) => (
-                  <button key={number + 1} onClick={() => paginate(number + 1)} className={currentPage === number + 1 ? "active" : ""}>{number + 1}</button>
-                ))}
-                <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
-              </div>
-            )}
+            {renderPagination()}
           </>
         )}
       </section>

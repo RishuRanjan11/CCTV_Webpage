@@ -65,7 +65,7 @@ export const signup = async (req, res) => {
       message: "User created successfully",
     });
   } catch (error) {
-    console.log("Error in signup controller", error.message);
+
     res.status(500).json({ message: error.message });
   }
 };
@@ -95,7 +95,6 @@ export const login = async (req, res) => {
       res.status(400).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    console.log("Error in login controller", error.message);
     res.status(500).json({ message: error.message });
   }
 };
@@ -116,7 +115,6 @@ export const logout = async (req, res) => {
     res.clearCookie("refreshToken");
     res.json({ message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -154,7 +152,6 @@ export const refreshToken = async (req, res) => {
 
     res.json({ message: "Token refreshed successfully" });
   } catch (error) {
-    console.log("Error in refresh token controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
@@ -163,7 +160,6 @@ export const getProfile = async (req, res) => {
   try {
     res.json(req.user);
   } catch (error) {
-    console.log("Error in getProfile controller", error.message);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };

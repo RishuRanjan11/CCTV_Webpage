@@ -37,6 +37,5 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/coupons", couponRoutes);
 app.listen(PORT, (req, res) => {
-  console.log(`Server is Running at http://localhost:${PORT}`);
   connectDB();
 });

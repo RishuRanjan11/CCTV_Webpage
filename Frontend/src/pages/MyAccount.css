@@ -116,6 +116,14 @@
   background-color: #f0f0f0;
 }
 
+.pagination-ellipsis {
+  padding: 8px 6px;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .edit-form {
   display: flex;
   flex-direction: column;

@@ -1,4 +1,6 @@
 import User from '../models/user.model.js';
+import Product from '../models/product.model.js';
+import Order from '../models/order.model.js';
 
 export const getCustomersWithFirstTimeBuyerStatus = async (req, res) => {
   try {
@@ -62,5 +64,84 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     console.error("Error in deleteUser controller:", error);
     res.status(500).json({ message: "Error deleting user", error: error.message });
+  }
+};
+
+export const getDashboardStats = async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    // --- User Stats ---
+    const totalUsers = await User.countDocuments({ role: "customer" });
+    const firstTimeBuyers = await User.countDocuments({
+      role: "customer",
+      isFirstTimeBuyer: true,
+    });
+
+    // --- Product Stats ---
+    const totalProducts = await Product.countDocuments();
+
+    // --- Order Stats ---
+    const dateFilter = {};
+    if (startDate && endDate) {
+      dateFilter.createdAt = {
+        $gte: new Date(startDate),
+        $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)), // Include the whole end day
+      };
+    }
+
+    // Use aggregation for sales data for the chart
+    const salesData = await Order.aggregate([
+      {
+        $match: {
+          ...dateFilter,
+          status: { $ne: "Cancelled" }, // Exclude cancelled orders from sales
+        },
+      },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          totalSales: { $sum: "$totalAmount" },
+        },
+      },
+      { $sort: { _id: 1 } }, // Sort by date
+    ]);
+
+    const orders = await Order.find(dateFilter);
+
+    let totalSales = 0;
+    const totalOrders = orders.length;
+    let pendingOrders = 0;
+    let shippedOrders = 0;
+    let deliveredOrders = 0;
+
+    orders.forEach(order => {
+      if (order.status !== "Cancelled") {
+        totalSales += order.totalAmount;
+      }
+      if (order.status === "Pending") pendingOrders++;
+      if (order.status === "Shipped") shippedOrders++;
+      if (order.status === "Delivered") deliveredOrders++;
+    });
+
+    res.status(200).json({
+      totalUsers,
+      firstTimeBuyers,
+      totalProducts,
+      totalSales,
+      totalOrders,
+      orderStatusCounts: {
+        pending: pendingOrders,
+        shipped: shippedOrders,
+        delivered: deliveredOrders,
+      },
+      salesData, // Add this for the chart
+    });
+  } catch (error) {
+    console.error("Error in getDashboardStats controller:", error);
+    res.status(500).json({
+      message: "Error fetching dashboard stats",
+      error: error.message,
+    });
   }
 };

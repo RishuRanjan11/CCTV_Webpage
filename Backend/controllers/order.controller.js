@@ -1,4 +1,5 @@
 import Order from "../models/order.model.js";
+import User from "../models/user.model.js";
 
 // Place a new order
 export const placeOrder = async (req, res) => {
@@ -24,6 +25,13 @@ export const placeOrder = async (req, res) => {
     });
 
     await newOrder.save();
+
+    // After successful order placement, update the user's first-time buyer status
+    const user = await User.findById(userId);
+    if (user && user.isFirstTimeBuyer) {
+      user.isFirstTimeBuyer = false;
+      await user.save();
+    }
 
     res
       .status(201)

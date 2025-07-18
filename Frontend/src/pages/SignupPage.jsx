@@ -33,7 +33,7 @@ const SignupPage = () => {
     setError("");
 
     // Here you would send data to backend
-    console.log("User Data:", formData);
+
     signup(formData);
     // Reset form
     setFormData({

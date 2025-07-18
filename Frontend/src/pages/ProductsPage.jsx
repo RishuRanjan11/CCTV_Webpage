@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import "./ProductsPage.css";
 import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
@@ -12,14 +12,20 @@ const ProductsPage = () => {
 
   const { products, fetchAllProducts } = useProductStore();
   const [searchQuery, setSearchQuery] = useState("");
-  const [filterCategory, setFilterCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const productsPerPage = 25;
 
   useEffect(() => {
     fetchAllProducts();
   }, [fetchAllProducts]);
+
+  // Reset to first page whenever filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const handleInitialAddToCart = (product) => {
     if (!user) {
@@ -41,11 +47,67 @@ const ProductsPage = () => {
     const matchSearch = product.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
-    const matchCategory = filterCategory
-      ? product.category === filterCategory
-      : true;
-    return matchSearch && matchCategory;
+    return matchSearch;
   });
+
+  // Pagination Logic
+  const indexOfLastProduct = currentPage * productsPerPage;
+  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
+  const currentProducts = filteredProducts.slice(
+    indexOfFirstProduct,
+    indexOfLastProduct
+  );
+  const totalPages = Math.ceil(filteredProducts.length / productsPerPage);
+
+  const handlePageChange = (pageNumber) => {
+    if (pageNumber > 0 && pageNumber <= totalPages) {
+      setCurrentPage(pageNumber);
+    }
+  };
+
+  const renderPagination = useCallback(() => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const pageNeighbours = 1;
+
+    pageNumbers.push(1);
+
+    if (currentPage > pageNeighbours + 2) {
+      pageNumbers.push("...");
+    }
+
+    const startPage = Math.max(2, currentPage - pageNeighbours);
+    const endPage = Math.min(totalPages - 1, currentPage + pageNeighbours);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    if (currentPage < totalPages - pageNeighbours - 1) {
+      pageNumbers.push("...");
+    }
+
+    if (totalPages > 1 && !pageNumbers.includes(totalPages)) {
+      pageNumbers.push(totalPages);
+    }
+
+    return (
+      <div className="pagination">
+        <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
+        {pageNumbers.map((page, index) => {
+          if (page === "...") {
+            return <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>;
+          }
+          return (
+            <button key={page} onClick={() => handlePageChange(page)} className={currentPage === page ? "active" : ""}>
+              {page}
+            </button>
+          );
+        })}
+        <button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
+      </div>
+    );
+  }, [currentPage, totalPages]);
 
   if (loading) return <div>Loading Products...</div>;
   if (error) return <div>Error: {error}</div>;
@@ -62,20 +124,11 @@ const ProductsPage = () => {
           onChange={(e) => setSearchQuery(e.target.value)}
         />
 
-        <select
-          value={filterCategory}
-          onChange={(e) => setFilterCategory(e.target.value)}
-        >
-          <option value="">All Categories</option>
-          <option value="cctv">CCTV</option>
-          <option value="dvr">DVR</option>
-          <option value="accessory">Accessory</option>
-        </select>
       </div>
 
       <div className="product-grid">
-        {filteredProducts.length > 0 ? (
-          filteredProducts.map((product) => {
+        {currentProducts.length > 0 ? (
+          currentProducts.map((product) => {
             const cartItem = cartItems.find(
               (item) => item.product && item.product._id === product._id
             );
@@ -116,9 +169,11 @@ const ProductsPage = () => {
             );
           })
         ) : (
-          <div>No Products Found</div>
+          <div className="no-products">No Products Found</div>
         )}
       </div>
+
+      {renderPagination()}
 
       {user && cartItems.length > 0 && (
         <button

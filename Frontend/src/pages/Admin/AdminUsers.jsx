@@ -87,13 +87,44 @@ const AdminUsers = () => {
   const renderPagination = () => {
     if (totalPages <= 1) return null;
 
+    const pageNumbers = [];
+    const pageNeighbours = 1; // How many pages to show on each side of the current page
+
+    // Always add the first page
+    pageNumbers.push(1);
+
+    // Add left ellipsis if needed
+    if (currentPage > pageNeighbours + 2) {
+      pageNumbers.push("...");
+    }
+
+    // Add pages around the current page
+    const startPage = Math.max(2, currentPage - pageNeighbours);
+    const endPage = Math.min(totalPages - 1, currentPage + pageNeighbours);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    // Add right ellipsis if needed
+    if (currentPage < totalPages - pageNeighbours - 1) {
+      pageNumbers.push("...");
+    }
+
+    // Always add the last page if it's not already included
+    if (totalPages > 1 && !pageNumbers.includes(totalPages)) {
+      pageNumbers.push(totalPages);
+    }
+
     return (
       <div className="pagination">
         <button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>
           &laquo; Prev
         </button>
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-          (page) => (
+        {pageNumbers.map((page, index) => {
+          if (page === "...") {
+            return <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>;
+          }
+          return (
             <button
               key={page}
               onClick={() => handlePageChange(page)}
@@ -101,8 +132,8 @@ const AdminUsers = () => {
             >
               {page}
             </button>
-          )
-        )}
+          );
+        })}
         <button
           onClick={() => handlePageChange(currentPage + 1)}
           disabled={currentPage === totalPages}

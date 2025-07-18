@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import AdminLayout from "../../components/AdminLayout";
 import "./AdminStyles.css";
 import { useOrderStore } from "../../stores/useOrderStore";
@@ -117,6 +117,50 @@ const AdminOrders = () => {
       setCurrentPage(pageNumber);
     }
   };
+
+  const renderPagination = useCallback(() => {
+    if (totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const pageNeighbours = 1;
+
+    pageNumbers.push(1);
+
+    if (currentPage > pageNeighbours + 2) {
+      pageNumbers.push("...");
+    }
+
+    const startPage = Math.max(2, currentPage - pageNeighbours);
+    const endPage = Math.min(totalPages - 1, currentPage + pageNeighbours);
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    if (currentPage < totalPages - pageNeighbours - 1) {
+      pageNumbers.push("...");
+    }
+
+    if (totalPages > 1 && !pageNumbers.includes(totalPages)) {
+      pageNumbers.push(totalPages);
+    }
+
+    return (
+      <div className="pagination">
+        <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
+        {pageNumbers.map((page, index) => {
+          if (page === "...") {
+            return <span key={`ellipsis-${index}`} className="pagination-ellipsis">...</span>;
+          }
+          return (
+            <button key={page} onClick={() => paginate(page)} className={currentPage === page ? "active" : ""}>
+              {page}
+            </button>
+          );
+        })}
+        <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
+      </div>
+    );
+  }, [currentPage, totalPages]);
 
   const handleDownload = (order) => {
     const doc = new jsPDF();
@@ -277,6 +321,7 @@ const AdminOrders = () => {
                     <table className="admin-table">
                       <thead>
                         <tr>
+                          <th>S.No.</th>
                           <th>Order ID</th>
                           <th>Customer</th>
                           <th>Email</th>
@@ -301,8 +346,9 @@ const AdminOrders = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {currentAdminOrders.map((order) => (
+                        {currentAdminOrders.map((order, index) => (
                           <tr key={order._id}>
+                            <td>{(currentPage - 1) * ordersPerPage + index + 1}</td>
                             <td
                               className="clickable-cell"
                               onClick={() => setViewingOrder(order)}
@@ -335,15 +381,7 @@ const AdminOrders = () => {
                       </tbody>
                     </table>
                   </div>
-                  {totalPages > 1 && (
-                    <div className="pagination">
-                      <button onClick={() => paginate(currentPage - 1)} disabled={currentPage === 1}>&laquo; Prev</button>
-                      {[...Array(totalPages).keys()].map((number) => (
-                        <button key={number + 1} onClick={() => paginate(number + 1)} className={currentPage === number + 1 ? "active" : ""}>{number + 1}</button>
-                      ))}
-                      <button onClick={() => paginate(currentPage + 1)} disabled={currentPage === totalPages}>Next &raquo;</button>
-                    </div>
-                  )}
+                  {renderPagination()}
                 </>
               ) : (
                 <p>No orders match your filters.</p>

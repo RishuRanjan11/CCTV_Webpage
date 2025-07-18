@@ -37,7 +37,7 @@ const ProductFormModal = ({ show, onClose, onSave, product }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log(e.target);
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
