@@ -1,7 +1,7 @@
 import express from "express";
 import {
   getCustomersWithFirstTimeBuyerStatus,
-} from "../controllers/admin.controller.js";
+} from "../controllers/admin_users.controller.js";
 import { adminRoute, protectRoute } from "../middleware/auth.middleware.js";
 
 const router = express.Router();

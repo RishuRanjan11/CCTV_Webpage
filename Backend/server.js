@@ -6,7 +6,7 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import cartRoutes from "./routes/cart.route.js";
-import adminRoutes from "./routes/admin.route.js";
+import adminRoutes from "./routes/admin_users.route.js";
 dotenv.config({});
 
 const app = express();
