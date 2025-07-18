@@ -1,17 +1,3 @@
-<<<<<<< HEAD
-// import React from 'react';
-// import { Navigate } from 'react-router-dom';
-
-// const ProtectedAdminRoute = ({ children }) => {
-//   const token = localStorage.getItem('adminToken');
-//   if (!token) {
-//     return <Navigate to="/admin/login" />;
-//   }
-//   return children;
-// };
-
-// export default ProtectedAdminRoute;
-=======
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 import { useUserStore } from '../stores/useUserStore';
@@ -40,4 +26,3 @@ const ProtectedAdminRoute = ({ children }) => {
 };
 
 export default ProtectedAdminRoute;
->>>>>>> adim/coupons
