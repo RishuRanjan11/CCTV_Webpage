@@ -10,7 +10,6 @@ const AdminNavbar = () => {
     logout();
     navigate("/");
   };
-
   return (
     <nav className="admin-navbar">
       <div className="admin-navbar-logo">
