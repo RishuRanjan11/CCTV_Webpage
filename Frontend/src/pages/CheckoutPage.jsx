@@ -1,23 +1,15 @@
-import React, { useContext, useState, useEffect } from "react";
-import { CartContext } from "../context/CartContext";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import React, { useState, useEffect } from "react";
 import "./CheckoutPage.css";
 import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 import { useOrderStore } from "../stores/useOrderStore";
+import { useCartStore } from "../stores/useCartStore";
 
 const CheckoutPage = () => {
-  const { cartItems, clearCart } = useContext(CartContext);
+  const { cartItems, clearCart } = useCartStore();
   const navigate = useNavigate();
   const { user } = useUserStore();
   const { placeOrder } = useOrderStore();
-
-  useEffect(() => {
-    if (!user) {
-      navigate("/login");
-    }
-  }, [user, navigate]);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -25,9 +17,28 @@ const CheckoutPage = () => {
     phone: "",
     email: "",
   });
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
-  const totalPrice = cartItems.reduce(
-    (sum, item) => sum + item.price * item.quantity,
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    }
+    // Pre-fill form with user data if available
+    if (user) {
+      setFormData({
+        name: user.name || "",
+        address: "", // Address is not in user model
+        phone: user.phone || "",
+        email: user.email || "",
+      });
+    }
+  }, [user, navigate]);
+
+  // Filter out items where the product might have been deleted from the DB
+  const validCartItems = cartItems.filter(item => item.product);
+
+  const totalPrice = validCartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
     0
   );
 
@@ -35,7 +46,8 @@ const CheckoutPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handlePlaceOrder = () => {
+  const handlePlaceOrder = async () => {
+    setIsPlacingOrder(true);
     if (
       !formData.name ||
       !formData.address ||
@@ -43,32 +55,34 @@ const CheckoutPage = () => {
       !formData.email
     ) {
       alert("Please fill in all fields!");
+      setIsPlacingOrder(false);
       return;
     }
 
-    // Simulate order placement
     const orderData = {
       userId: user._id,
-      products: cartItems.map((item) => ({
-        product: item._id,
+      products: validCartItems.map((item) => ({
+        product: item.product._id,
         quantity: item.quantity,
-        price: item.price,
+        price: item.product.price,
       })),
-      totalAmount: cartItems.reduce(
-        (sum, item) => sum + item.price * item.quantity,
-        0
-      ),
+      totalAmount: totalPrice,
       Address: formData.address,
       phone: formData.phone,
     };
-    placeOrder(orderData);
-    alert("✅ Order placed successfully!");
-
-    clearCart();
-    navigate("/");
+    try {
+      await placeOrder(orderData);
+      alert("✅ Order placed successfully!");
+      await clearCart();
+      navigate("/");
+    } catch (error) {
+      alert("There was an error placing your order. Please try again.");
+    } finally {
+      setIsPlacingOrder(false);
+    }
   };
 
-  if (cartItems.length === 0) {
+  if (validCartItems.length === 0) {
     return (
       <div className="checkout-page">
         <h2>Your cart is empty.</h2>
@@ -86,13 +100,13 @@ const CheckoutPage = () => {
           <div className="checkout-cart">
             <h3>Your Items</h3>
             <ul>
-              {cartItems.map((item) => (
-                <li key={item._id} className="checkout-item">
-                  <img src={item.image} alt={item.name} />
+              {validCartItems.map(({ product, quantity }) => (
+                <li key={product._id} className="checkout-item">
+                  <img src={product.image} alt={product.name} />
                   <div>
-                    <p>{item.name}</p>
-                    <p>Quantity: {item.quantity}</p>
-                    <p>Subtotal: ₹{item.price * item.quantity}</p>
+                    <p>{product.name}</p>
+                    <p>Quantity: {quantity}</p>
+                    <p>Subtotal: ₹{product.price * quantity}</p>
                   </div>
                 </li>
               ))}
@@ -134,8 +148,12 @@ const CheckoutPage = () => {
               onChange={handleInputChange}
               required
             />
-            <button className="place-order-btn" onClick={handlePlaceOrder}>
-              Place Order
+            <button
+              className="place-order-btn"
+              onClick={handlePlaceOrder}
+              disabled={isPlacingOrder}
+            >
+              {isPlacingOrder ? "Placing Order..." : "Place Order"}
             </button>
           </div>
         </div>

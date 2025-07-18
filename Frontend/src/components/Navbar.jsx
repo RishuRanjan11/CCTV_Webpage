@@ -1,13 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
-
+import { useCartStore } from "../stores/useCartStore";
 const Navbar = () => {
   const { user, logout } = useUserStore();
+  const { cartItems } = useCartStore();
 
   const handleLogout = () => {
     logout(); // Assuming this clears the user from store
   };
+
+  const cartItemCount = cartItems.reduce((sum, item) => {
+    return item.product ? sum + item.quantity : sum;
+  }, 0);
 
   return (
     <nav className="navbar navbar-expand-lg" style={{ background: "#0d1b2a" }}>
@@ -82,11 +87,6 @@ const Navbar = () => {
                 Contact Us
               </Link>
             </li>
-            <li className="nav-item">
-              <Link to="/cart" className="nav-link" style={{ color: "#fff" }}>
-                Cart
-              </Link>
-            </li>
 
             {!user ? (
               <>
@@ -116,6 +116,19 @@ const Navbar = () => {
               </>
             ) : (
               <>
+                <li className="nav-item">
+                  <Link to="/cart" className="nav-link" style={{ color: "#fff" }}>
+                    Cart
+                    {cartItemCount > 0 && (
+                      <span className="cart-count-badge">({cartItemCount})</span>
+                    )}
+                  </Link>
+                </li>
+                 <li className="nav-item">
+                  <Link to="/my-account" className="nav-link" style={{ color: "#fff" }}>
+                    My Account
+                  </Link>
+                </li>
                 {user?.role === "admin" && (
                   <li className="nav-item">
                     <Link

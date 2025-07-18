@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from "react-router-dom";
-import Carousel from "./components/Carousel";
+import { Routes, Route, Outlet } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
 import HomePage from "./pages/HomePage";
 
-import Products from "./components/Products";
-import About from "./components/About";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import AboutPage from "./pages/AboutPage";
@@ -14,23 +12,34 @@ import ContactPage from "./pages/ContactPage";
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import CartPage from "./pages/CartPage";
+import MyAccount from "./pages/MyAccount";
 import CheckoutPage from "./pages/CheckoutPage";
-import { CartProvider } from "./context/CartContext";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import AdminProducts from "./pages/Admin/AdminProducts";
 import AdminOrders from "./pages/Admin/AdminOrders";
 import AdminCoupons from "./pages/Admin/AdminCoupons";
 import AdminUsers from "./pages/Admin/AdminUsers";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn";
 import "./App.css";
 import { useUserStore } from "./stores/useUserStore";
+
+// Layout component for customer-facing pages
+const CustomerLayout = () => (
+  <>
+    <Navbar />
+    <Outlet /> {/* Child routes will render here */}
+    <Footer />
+  </>
+);
+
 function App() {
   const checkAuth = useUserStore((state) => state.checkAuth);
 
   useEffect(() => {
     checkAuth();
-  const handleStorage = (event) => {
+    const handleStorage = (event) => {
       if (event.key === "auth-sync") {
         checkAuth(); // re-check auth status when notified
       }
@@ -38,9 +47,10 @@ function App() {
 
     window.addEventListener("storage", handleStorage);
     return () => window.removeEventListener("storage", handleStorage);
-  }, []);
+  }, [checkAuth]);
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       {/* Social Links */}
       <div className="social-links top-links">
         <a href="https://www.instagram.com/">
@@ -70,129 +80,49 @@ function App() {
           />
         </a>
       </div>
-
-      <CartProvider>
-        <Routes>
-          {/* Customer Routes with Navbar and Footer */}
-          <Route
-            path="/"
-            element={
-              <>
-                <Navbar />
-                <HomePage />
-                <Footer />
-              </>
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <>
-                <Navbar />
-                <AboutPage />
-                <Footer />
-              </>
-            }
-          />
-          <Route
-            path="/products"
-            element={
-              <>
-                <Navbar />
-                <ProductsPage />
-                <Footer />
-              </>
-            }
-          />
-          <Route
-            path="/services"
-            element={
-              <>
-                <Navbar />
-                <ServicesPage />
-                <Footer />
-              </>
-            }
-          />
-          <Route
-            path="/contact"
-            element={
-              <>
-                <Navbar />
-                <ContactPage />
-                <Footer />
-              </>
-            }
-          />
+      <Routes>
+        {/* Customer Routes with shared layout */}
+        <Route element={<CustomerLayout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+          <Route path="/my-account" element={<ProtectedRoute><MyAccount /></ProtectedRoute>} />
+          <Route path="/checkout" element={<ProtectedRoute><CheckoutPage /></ProtectedRoute>} />
           <Route
             path="/login"
-            element={
-              <RedirectIfLoggedIn>
-                <>
-                  <Navbar />
-                  <LoginPage />
-                  <Footer />
-                </>
-              </RedirectIfLoggedIn>
-            }
+            element={<RedirectIfLoggedIn><LoginPage /></RedirectIfLoggedIn>}
           />
           <Route
             path="/signup"
-            element={
-              <RedirectIfLoggedIn>
-                <>
-                  <Navbar />
-                  <SignupPage />
-                  <Footer />
-                </>
-              </RedirectIfLoggedIn>
-            }
+            element={<RedirectIfLoggedIn><SignupPage /></RedirectIfLoggedIn>}
           />
-          <Route
-            path="/cart"
-            element={
-              <>
-                <Navbar />
-                <CartPage />
-                <Footer />
-              </>
-            }
-          />
-          <Route
-            path="/checkout"
-            element={
-              <>
-                <Navbar />
-                <CheckoutPage />
-                <Footer />
-              </>
-            }
-          />
+        </Route>
 
-          {/* Admin Routes WITHOUT Customer Navbar/Footer */}
-          <Route
-            path="/admin/dashboard"
-            element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>}
-          />
-          <Route
-            path="/admin/products"
-            element={<ProtectedAdminRoute><AdminProducts /></ProtectedAdminRoute>}
-          />
-          <Route
-            path="/admin/orders"
-            element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>}
-          />
-          <Route
-            path="/admin/coupons"
-            element={<ProtectedAdminRoute><AdminCoupons /></ProtectedAdminRoute>}
-          />
-          <Route
-            path="/admin/users"
-            element={<ProtectedAdminRoute><AdminUsers /></ProtectedAdminRoute>}
-          />
-    
-        </Routes>
-      </CartProvider>
+        {/* Admin Routes WITHOUT Customer Navbar/Footer */}
+        <Route
+          path="/admin/dashboard"
+          element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>}
+        />
+        <Route
+          path="/admin/products"
+          element={<ProtectedAdminRoute><AdminProducts /></ProtectedAdminRoute>}
+        />
+        <Route
+          path="/admin/orders"
+          element={<ProtectedAdminRoute><AdminOrders /></ProtectedAdminRoute>}
+        />
+        <Route
+          path="/admin/coupons"
+          element={<ProtectedAdminRoute><AdminCoupons /></ProtectedAdminRoute>}
+        />
+        <Route
+          path="/admin/users"
+          element={<ProtectedAdminRoute><AdminUsers /></ProtectedAdminRoute>}
+        />
+      </Routes>
     </>
   );
 }

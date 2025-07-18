@@ -1,29 +1,34 @@
-import React, { useContext, useEffect } from 'react';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import { CartContext } from '../context/CartContext';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from '../stores/useCartStore';
 import '../App.css';
 import './CartPage.css'
 
 function CartPage() {
-    const { cartItems, removeFromCart, updateQuantity, clearCart } = useContext(CartContext);
+    const { cartItems, removeFromCart, updateQuantity, clearCart, getCart, loading } = useCartStore();
     const navigate = useNavigate();
     const user = useUserStore((state) => state.user);
 
     useEffect(() => {
         if (!user) {
             navigate('/login');
+        } else {
+            // Fetch cart if it's not loaded (e.g., user navigated directly to this page)
+            if (cartItems.length === 0) {
+                getCart();
+            }
         }
-    }, [user, navigate]);
+    }, [user, navigate, getCart, cartItems.length]);
 
-    const handleQuantityChange = (id, newQuantity) => {
-        if (newQuantity < 1) return;
-        updateQuantity(id, newQuantity);
+    // Filter out items where the product might have been deleted from the DB
+    const validCartItems = cartItems.filter(item => item.product);
+
+    const handleQuantityChange = (productId, newQuantity) => {
+        updateQuantity(productId, newQuantity);
     };
 
-    const totalPrice = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const totalPrice = validCartItems.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
 
     return (
         <>
@@ -31,7 +36,9 @@ function CartPage() {
             <div className="cart-page">
                 <h2>Your Cart</h2>
 
-                {cartItems.length === 0 ? (
+                {loading && cartItems.length === 0 ? (
+                    <p>Loading your cart...</p>
+                ) : validCartItems.length === 0 ? (
                     <p>Your cart is empty.</p>
                 ) : (
                     <>
@@ -47,21 +54,21 @@ function CartPage() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {cartItems.map((item) => (
-                                    <tr key={item.id}>
+                                {validCartItems.map(({ product, quantity }) => (
+                                    <tr key={product._id}>
                                         <td>
-                                            <img src={item.image} alt={item.name} style={{ width: '60px', height: '60px', objectFit: 'cover' }} />
+                                            <img src={product.image} alt={product.name} style={{ width: '60px', height: '60px', objectFit: 'cover' }} />
                                         </td>
-                                        <td>{item.name}</td>
-                                        <td>₹{item.price}</td>
+                                        <td>{product.name}</td>
+                                        <td>₹{product.price}</td>
                                         <td>
-                                            <button onClick={() => handleQuantityChange(item._id, item.quantity - 1)}>-</button>
-                                            <span className="quantity-value">{item.quantity}</span>
-                                            <button onClick={() => handleQuantityChange(item._id, item.quantity + 1)}>+</button>
+                                            <button onClick={() => handleQuantityChange(product._id, quantity - 1)}>-</button>
+                                            <span className="quantity-value">{quantity}</span>
+                                            <button onClick={() => handleQuantityChange(product._id, quantity + 1)}>+</button>
                                         </td>
-                                        <td>₹{item.price * item.quantity}</td>
+                                        <td>₹{product.price * quantity}</td>
                                         <td>
-                                            <button onClick={() => removeFromCart(item._id)}>Remove</button>
+                                            <button onClick={() => removeFromCart(product._id)}>Remove</button>
                                         </td>
                                     </tr>
                                 ))}

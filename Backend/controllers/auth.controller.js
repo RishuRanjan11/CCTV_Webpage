@@ -167,3 +167,64 @@ export const getProfile = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+// @description Update user profile (phone number)
+// @route PUT /api/auth/profile
+export const updateUserProfile = async (req, res) => {
+  try {
+    const { phone } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Update only the fields that are provided
+    if (phone) user.phone = phone;
+
+    const updatedUser = await user.save();
+
+    // Return the updated user object, excluding the password
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      phone: updatedUser.phone,
+      role: updatedUser.role,
+    });
+  } catch (error) {
+    console.error("Error in updateUserProfile:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};
+
+// @description Change user password
+// @route PUT /api/auth/change-password
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Check if the current password is correct
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect current password." });
+    }
+
+    user.password = newPassword; // The pre-save hook will hash this
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully." });
+  } catch (error) {
+    console.error("Error in changePassword:", error.message);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+};

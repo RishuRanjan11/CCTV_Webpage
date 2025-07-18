@@ -1,13 +1,12 @@
-import React, { useEffect, useState, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import "./ProductsPage.css";
-import { CartContext } from "../context/CartContext";
 import { useNavigate } from "react-router-dom";
 import { useProductStore } from "../stores/useProductStore";
 import { useUserStore } from "../stores/useUserStore";
+import { useCartStore } from "../stores/useCartStore";
 
 const ProductsPage = () => {
-  const { cartItems, addToCart, updateQuantity, removeFromCart } =
-    useContext(CartContext);
+  const { cartItems, addToCart, updateQuantity } = useCartStore();
   const navigate = useNavigate();
   const user = useUserStore((state) => state.user);
 
@@ -16,23 +15,26 @@ const ProductsPage = () => {
   const [filterCategory, setFilterCategory] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [hasSeenPopup, setHasSeenPopup] = useState(false);
   const [showPopup, setShowPopup] = useState(false);
 
   useEffect(() => {
     fetchAllProducts();
   }, [fetchAllProducts]);
 
-  const handleAddToCart = (product) => {
+  const handleInitialAddToCart = (product) => {
     if (!user) {
       navigate("/login");
       return;
     }
-    const wasCartEmpty = cartItems.length === 0;
-    addToCart(product);
-    if (wasCartEmpty) {
-      setShowPopup(true);
-    }
+    addToCart(product)
+      .then(() => {
+        // This now only runs on success
+        setShowPopup(true);
+      })
+      .catch(() => {
+        // The error is already toasted in the store, so we can just console log here.
+        console.error("Add to cart failed, not showing popup.");
+      });
   };
 
   const filteredProducts = products.filter((product) => {
@@ -74,7 +76,9 @@ const ProductsPage = () => {
       <div className="product-grid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => {
-            const cartItem = cartItems.find((item) => item._id === product._id);
+            const cartItem = cartItems.find(
+              (item) => item.product && item.product._id === product._id
+            );
             const quantity = user && cartItem ? cartItem.quantity : 0;
 
             return (
@@ -86,7 +90,7 @@ const ProductsPage = () => {
 
                 {quantity === 0 ? (
                   <button
-                    onClick={() => handleAddToCart(product)}
+                    onClick={() => handleInitialAddToCart(product)}
                     className="order-now-btn"
                   >
                     Order Now
@@ -95,8 +99,7 @@ const ProductsPage = () => {
                   <div className="quantity-controls">
                     <button
                       onClick={() => {
-                        if (quantity === 1) removeFromCart(product._id);
-                        else updateQuantity(product._id, quantity - 1);
+                        updateQuantity(product._id, quantity - 1);
                       }}
                     >
                       -
@@ -122,7 +125,9 @@ const ProductsPage = () => {
           className="floating-checkout-btn"
           onClick={() => navigate("/cart")}
         >
-          🛒 Checkout ({cartItems.reduce((sum, item) => sum + item.quantity, 0)}
+          🛒 Checkout ({cartItems.reduce((sum, item) => {
+            return item.product ? sum + item.quantity : sum;
+          }, 0)}
           )
         </button>
       )}

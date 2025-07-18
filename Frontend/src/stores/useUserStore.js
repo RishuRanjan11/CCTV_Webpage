@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axios from "../lib/axios";
 import { toast } from "react-hot-toast";
+import { useCartStore } from "./useCartStore";
 
 export const useUserStore = create((set, get) => ({
   user: null,
@@ -29,6 +30,9 @@ export const useUserStore = create((set, get) => ({
       localStorage.setItem("auth-sync", Date.now());
       const user = res.data.user;
       set({ user: user });
+      // Fetch the user's cart from the database upon successful login
+      useCartStore.getState().getCart();
+
       toast.success("Login successful!");
 
       if (user.role === "admin") {
@@ -38,7 +42,18 @@ export const useUserStore = create((set, get) => ({
       }
     } catch (error) {
       set({ loading: false });
-      toast.error(error.response.data.message || "An error occurred");
+      // More robust error handling
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx (e.g., 400, 401, 404)
+        toast.error(error.response.data.message || "Invalid credentials.");
+      } else if (error.request) {
+        // The request was made but no response was received (e.g., network error)
+        toast.error("Network error. Please check your connection or if the server is running.");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        toast.error(error.message || "An unexpected error occurred.");
+      }
     }
   },
 
@@ -47,6 +62,8 @@ export const useUserStore = create((set, get) => ({
       await axios.post("/auth/logout");
       localStorage.setItem("auth-sync", Date.now());
       set({ user: null });
+      // Clear the cart from the state upon logout
+      useCartStore.getState().clearLocalCart();
     } catch (error) {
       toast.error(
         error.response.data.message || "An error occurred during logout"
@@ -57,6 +74,10 @@ export const useUserStore = create((set, get) => ({
   checkAuth: async () => {
     try {
       const response = await axios.get("/auth/profile");
+      if (response.data) {
+        // If user is authenticated, fetch their cart
+        useCartStore.getState().getCart();
+      }
       set({ user: response.data, checkingAuth: false });
     } catch {
       set({ checkingAuth: false, user: null });
@@ -75,6 +96,36 @@ export const useUserStore = create((set, get) => ({
     } catch (error) {
       set({ user: null, checkingAuth: false });
       throw error;
+    }
+  },
+
+  updateProfile: async (profileData) => {
+    set({ loading: true });
+    try {
+      const response = await axios.put("/auth/profile", profileData);
+      set({ user: response.data, loading: false });
+      toast.success("Profile updated successfully!");
+    } catch (error) {
+      set({ loading: false });
+      toast.error(
+        error.response?.data?.message || "Failed to update profile."
+      );
+      throw error; // Re-throw so component can handle it
+    }
+  },
+
+  changePassword: async (passwordData) => {
+    set({ loading: true });
+    try {
+      const response = await axios.put("/auth/change-password", passwordData);
+      toast.success(response.data.message);
+      set({ loading: false });
+    } catch (error) {
+      set({ loading: false });
+      toast.error(
+        error.response?.data?.message || "Failed to change password."
+      );
+      throw error; // Re-throw so component can handle it
     }
   },
 }));
