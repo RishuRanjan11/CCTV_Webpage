@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import Carousel from "./components/Carousel";
 import HomePage from "./pages/HomePage";
-
+import { Toaster } from "react-hot-toast";
 import Products from "./components/Products";
 import About from "./components/About";
 import Navbar from "./components/Navbar";
@@ -26,6 +26,8 @@ import RedirectIfLoggedIn from "./components/RedirectIfLoggedIn";
 import "./App.css";
 import { useUserStore } from "./stores/useUserStore";
 import OtpVerification from "./components/OtpVerification";
+import ForgetPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 function App() {
   const checkAuth = useUserStore((state) => state.checkAuth);
 
@@ -42,6 +44,7 @@ function App() {
   }, []);
   return (
     <>
+      <Toaster position="bottom-right" />
       {/* Social Links */}
       <div className="social-links top-links">
         <a href="https://www.instagram.com/">
@@ -159,6 +162,26 @@ function App() {
                   <Footer />
                 </>
               </RedirectIfLoggedIn>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <>
+                <Navbar />
+                <ForgetPassword />
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/reset-password/:token"
+            element={
+              <>
+                <Navbar />
+                <ResetPassword />
+                <Footer />
+              </>
             }
           />
           <Route

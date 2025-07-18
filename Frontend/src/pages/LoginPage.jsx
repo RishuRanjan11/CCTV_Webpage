@@ -44,10 +44,10 @@ const LoginPage = () => {
             <p>
               Don't have an account? <a href="/signup">Create an Account</a>
             </p>
+            <a href="/forgot-password">Forgot Password?</a>
           </div>
         </div>
       </div>
-      
     </div>
   );
 };
