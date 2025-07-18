@@ -226,7 +226,9 @@ const AdminOrders = () => {
     doc.setFontSize(12);
     doc.text(`Order ID: ${order._id}`, margin, y);
     doc.text(
-      `Date: ${new Date(order.createdAt).toLocaleDateString()}`,
+      `Date: ${new Date(order.createdAt)
+        .toLocaleDateString("en-GB")
+        .replace(/\//g, "-")}`,
       pageWidth - margin,
       y,
       { align: "right" }
@@ -374,7 +376,9 @@ const AdminOrders = () => {
                                 <option value="Cancelled">Cancelled</option>
                               </select>
                             </td>
-                            <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                            <td>
+                              {new Date(order.createdAt).toLocaleDateString('en-GB').replace(/\//g, '-')}
+                            </td>
                             <td>{order.phone || "N/A"}</td>
                           </tr>
                         ))}

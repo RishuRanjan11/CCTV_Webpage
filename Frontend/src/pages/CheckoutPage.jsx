@@ -11,26 +11,12 @@ const CheckoutPage = () => {
   const { user } = useUserStore();
   const { placeOrder } = useOrderStore();
 
-  const [formData, setFormData] = useState({
-    name: "",
-    address: "",
-    phone: "",
-    email: "",
-  });
+  const [address, setAddress] = useState("");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
-    }
-    // Pre-fill form with user data if available
-    if (user) {
-      setFormData({
-        name: user.name || "",
-        address: "", // Address is not in user model
-        phone: user.phone || "",
-        email: user.email || "",
-      });
     }
   }, [user, navigate]);
 
@@ -42,19 +28,14 @@ const CheckoutPage = () => {
     0
   );
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleAddressChange = (e) => {
+    setAddress(e.target.value);
   };
 
   const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
-    if (
-      !formData.name ||
-      !formData.address ||
-      !formData.phone ||
-      !formData.email
-    ) {
-      alert("Please fill in all fields!");
+    if (!address.trim()) {
+      alert("Please fill in your shipping address!");
       setIsPlacingOrder(false);
       return;
     }
@@ -67,8 +48,8 @@ const CheckoutPage = () => {
         price: item.product.price,
       })),
       totalAmount: totalPrice,
-      Address: formData.address,
-      phone: formData.phone,
+      Address: address,
+      phone: user.phone,
     };
     try {
       await placeOrder(orderData);
@@ -116,37 +97,18 @@ const CheckoutPage = () => {
 
           <div className="checkout-form">
             <h3>Delivery Details</h3>
-            <input
-              type="text"
-              name="name"
-              placeholder="Full Name"
-              value={formData.name}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="text"
+            <div className="user-info-display">
+              <p><strong>Name:</strong> {user?.name}</p>
+              <p><strong>Email:</strong> {user?.email}</p>
+              <p><strong>Phone:</strong> {user?.phone}</p>
+            </div>
+            <textarea
               name="address"
-              placeholder="Address"
-              value={formData.address}
-              onChange={handleInputChange}
+              placeholder="Full Shipping Address"
+              value={address}
+              onChange={handleAddressChange}
               required
-            />
-            <input
-              type="tel"
-              name="phone"
-              placeholder="Phone Number"
-              value={formData.phone}
-              onChange={handleInputChange}
-              required
-            />
-            <input
-              type="email"
-              name="email"
-              placeholder="Email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
+              rows="4"
             />
             <button
               className="place-order-btn"

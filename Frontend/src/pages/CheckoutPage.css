@@ -110,3 +110,34 @@
   background: #f0a500;
   color: #0d1b2a;
 }
+
+.user-info-display {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+}
+
+.user-info-display p {
+  margin: 5px 0;
+}
+
+.checkout-form textarea {
+  display: block;
+  width: 100%;
+  padding: 10px 15px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.checkout-form textarea:focus {
+  border-color: #f0a500;
+}

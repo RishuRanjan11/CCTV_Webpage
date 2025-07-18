@@ -203,8 +203,7 @@ const MyAccount = () => {
                       <p>
                         <strong>Date:</strong>{" "}
                         {new Date(order.createdAt)
-                          .toLocaleDateString("en-GB")
-                          .replace(/\//g, "--")}
+                          .toLocaleDateString("en-GB").replace(/\//g, "-")}
                       </p>
                     </div>
                     <div>
