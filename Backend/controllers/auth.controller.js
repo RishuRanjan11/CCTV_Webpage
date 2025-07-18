@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import nodemailer from "nodemailer";
 import User from "../models/user.model.js";
 import Token from "../models/token.model.js";
@@ -247,5 +248,84 @@ export const verifyOTP = async (req, res) => {
   } catch (error) {
     console.log("Error verifying OTP", error.message);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const token = crypto.randomBytes(32).toString("hex");
+
+    user.resetToken = token;
+    user.resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
+    await user.save();
+
+    const resetLink = `http://localhost:3000/reset-password/${token}`;
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail", // or use SMTP config
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"CCTV Digital Surveillance" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset",
+      text: `Click here to reset: ${resetLink}`,
+    });
+
+    res.json({ message: "Reset link sent to your email" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const validateResetToken = async (req, res) => {
+  const { token } = req.params;
+
+  const now = Date.now();
+
+  const user = await User.findOne({
+    resetToken: token,
+    resetTokenExpiry: { $gt: now },
+  });
+
+  if (!user) {
+    return res.status(400).json({ valid: false });
+  }
+
+  return res.status(200).json({ valid: true });
+};
+
+export const resetPassword = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiry: { $gt: Date.now() },
+    });
+
+    if (!user)
+      return res.status(400).json({ message: "Invalid or expired token" });
+
+    user.password = newPassword;
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

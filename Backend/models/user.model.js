@@ -40,9 +40,17 @@ const userSchema = new mongoose.Schema(
       enum: ["customer", "admin"],
       default: "customer",
     },
-     isFirstTimeBuyer: {
+    isFirstTimeBuyer: {
       type: Boolean,
-      default: true, 
+      default: true,
+    },
+    resetToken: {
+      type: String,
+      default: undefined,
+    },
+    resetTokenExpiry: {
+      type: Date,
+      default: undefined,
     },
   },
   {
