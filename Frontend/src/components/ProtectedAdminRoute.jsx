@@ -1,20 +1,6 @@
-<<<<<<< HEAD
-// import React from 'react';
-// import { Navigate } from 'react-router-dom';
-
-// const ProtectedAdminRoute = ({ children }) => {
-//   const token = localStorage.getItem('adminToken');
-//   if (!token) {
-//     return <Navigate to="/admin/login" />;
-//   }
-//   return children;
-// };
-
-// export default ProtectedAdminRoute;
-=======
-import React from 'react';
-import { Navigate } from 'react-router-dom';
-import { useUserStore } from '../stores/useUserStore';
+import React from "react";
+import { Navigate } from "react-router-dom";
+import { useUserStore } from "../stores/useUserStore";
 
 const ProtectedAdminRoute = ({ children }) => {
   const user = useUserStore((state) => state.user);
@@ -31,7 +17,7 @@ const ProtectedAdminRoute = ({ children }) => {
   }
 
   // If user is logged in but is not an admin, redirect to home page
-  if (user.role !== 'admin') {
+  if (user.role !== "admin") {
     return <Navigate to="/" replace />;
   }
 
@@ -40,4 +26,3 @@ const ProtectedAdminRoute = ({ children }) => {
 };
 
 export default ProtectedAdminRoute;
->>>>>>> adim/coupons
