@@ -31,6 +31,19 @@ const orderSchema = new mongoose.Schema(
       required: true,
       min: 0,
     },
+    Address: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["OrderPlaced", "Delivered"],
+      default: "OrderPlaced",
+    },
   },
   { timestamps: true }
 );

@@ -10,13 +10,11 @@ export const useProductStore = create((set) => ({
   createProduct: async (productData) => {
     set({ loading: true });
     try {
-      console.log("Hello");
       const res = await axios.post("/products", productData);
-      console.log(res);
-      // set((prevState) => ({
-      //   products: [...prevState.products, res.data],
-      //   loading: false,
-      // }));
+      set((prevState) => ({
+        products: [...prevState.products, res.data],
+        loading: false,
+      }));
     } catch (error) {
       toast.error(error.response.data.error);
       set({ loading: false });

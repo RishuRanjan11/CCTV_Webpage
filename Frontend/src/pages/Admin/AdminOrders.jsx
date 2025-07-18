@@ -1,29 +1,16 @@
-import React, { useEffect, useState } from 'react';
-import AdminLayout from '../../components/AdminLayout';
-import './AdminStyles.css';
+import React, { useEffect, useState } from "react";
+import AdminLayout from "../../components/AdminLayout";
+import "./AdminStyles.css";
+import { useOrderStore } from "../../stores/useOrderStore";
 
 const AdminOrders = () => {
-  const [orders, setOrders] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { orders, fetchAllOrders } = useOrderStore();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      try {
-        const res = await fetch('/api/admin/orders'); // Adjust if different
-        if (!res.ok) throw new Error('Failed to fetch orders');
-        const data = await res.json();
-        setOrders(data.orders || []); // Expecting { orders: [...] }
-      } catch (err) {
-        console.error('Fetch Orders Error:', err);
-        setError('Failed to load orders.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
-  }, []);
+    fetchAllOrders();
+  }, [fetchAllOrders]);
 
   return (
     <AdminLayout>
@@ -46,22 +33,26 @@ const AdminOrders = () => {
                   <th>Total</th>
                   <th>Status</th>
                   <th>Date</th>
+                  <th>Phone Number</th>
                 </tr>
               </thead>
               <tbody>
-                {orders.map(order => (
+                {orders.map((order) => (
                   <tr key={order._id}>
                     <td>{order._id.slice(0, 8)}...</td>
-                    <td>{order.customerName || 'N/A'}</td>
-                    <td>₹{order.total}</td>
+                    <td>{order.user.name || "N/A"}</td>
+                    <td>₹{order.totalAmount}</td>
                     <td>
                       <span
-                        className={`status-badge ${order.status?.toLowerCase() || 'pending'}`}
+                        className={`status-badge ${
+                          order.status?.toLowerCase() || "pending"
+                        }`}
                       >
-                        {order.status || 'Pending'}
+                        {order.status || "Pending"}
                       </span>
                     </td>
                     <td>{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td>{order.phone || "N/A"}</td>
                   </tr>
                 ))}
               </tbody>

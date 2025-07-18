@@ -1,27 +1,29 @@
-import React, { useContext, useState, useEffect } from 'react';
-import { CartContext } from '../context/CartContext';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
-import './CheckoutPage.css';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from "react";
+import { CartContext } from "../context/CartContext";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import "./CheckoutPage.css";
+import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
+import { useOrderStore } from "../stores/useOrderStore";
 
 const CheckoutPage = () => {
   const { cartItems, clearCart } = useContext(CartContext);
   const navigate = useNavigate();
-  const user = useUserStore((state) => state.user);
+  const { user } = useUserStore();
+  const { placeOrder } = useOrderStore();
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      navigate("/login");
     }
   }, [user, navigate]);
 
   const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    phone: '',
-    email: '',
+    name: "",
+    address: "",
+    phone: "",
+    email: "",
   });
 
   const totalPrice = cartItems.reduce(
@@ -34,22 +36,43 @@ const CheckoutPage = () => {
   };
 
   const handlePlaceOrder = () => {
-    if (!formData.name || !formData.address || !formData.phone || !formData.email) {
-      alert('Please fill in all fields!');
+    if (
+      !formData.name ||
+      !formData.address ||
+      !formData.phone ||
+      !formData.email
+    ) {
+      alert("Please fill in all fields!");
       return;
     }
 
     // Simulate order placement
-    alert('✅ Order placed successfully!');
+    const orderData = {
+      userId: user._id,
+      products: cartItems.map((item) => ({
+        product: item._id,
+        quantity: item.quantity,
+        price: item.price,
+      })),
+      totalAmount: cartItems.reduce(
+        (sum, item) => sum + item.price * item.quantity,
+        0
+      ),
+      Address: formData.address,
+      phone: formData.phone,
+    };
+    placeOrder(orderData);
+    alert("✅ Order placed successfully!");
+
     clearCart();
-    navigate('/');
+    navigate("/");
   };
 
   if (cartItems.length === 0) {
     return (
       <div className="checkout-page">
         <h2>Your cart is empty.</h2>
-        <button onClick={() => navigate('/')}>Go to Products</button>
+        <button onClick={() => navigate("/")}>Go to Products</button>
       </div>
     );
   }
@@ -117,7 +140,6 @@ const CheckoutPage = () => {
           </div>
         </div>
       </div>
-      
     </>
   );
 };
