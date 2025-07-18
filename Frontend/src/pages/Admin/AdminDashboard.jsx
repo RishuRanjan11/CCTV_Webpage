@@ -34,6 +34,10 @@ const AdminDashboard = () => {
     startDate: '',
     endDate: '',
   });
+  const [chartView, setChartView] = useState('month'); // 'day', 'month', 'year'
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth() + 1);
+
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [],
@@ -45,7 +49,12 @@ const AdminDashboard = () => {
       setError('');
       try {
         const response = await axios.get('/admin/dashboard', {
-          params: dateRange,
+          params: {
+            ...dateRange, // For cards
+            groupBy: chartView, // For chart
+            year: selectedYear,
+            month: selectedMonth,
+          },
         });
         const data = response.data;
 
@@ -59,7 +68,18 @@ const AdminDashboard = () => {
         });
 
         // Process data for the chart
-        const labels = data.salesData.map(d => new Date(d._id).toLocaleDateString('en-GB'));
+        let labels = [];
+        if (data.salesData) {
+          if (chartView === 'year') {
+            labels = data.salesData.map((d) => d._id);
+          } else if (chartView === 'month') {
+            const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            labels = data.salesData.map((d) => monthNames[d._id - 1]);
+          } else { // day
+            labels = data.salesData.map((d) => d._id);
+          }
+        }
+
         const salesValues = data.salesData.map(d => d.totalSales);
 
         setChartData({
@@ -82,7 +102,7 @@ const AdminDashboard = () => {
     };
 
     fetchDashboardStats();
-  }, [dateRange]);
+  }, [dateRange, chartView, selectedYear, selectedMonth]);
 
   const handleDateChange = (e) => {
     setDateRange({
@@ -171,6 +191,34 @@ const AdminDashboard = () => {
 
           {!loading && !error && (
             <div className="admin-chart-container">
+              <div className="admin-chart-filters">
+                <label>
+                  Group By:
+                  <select value={chartView} onChange={(e) => setChartView(e.target.value)} className="filter-select">
+                    <option value="day">Day</option>
+                    <option value="month">Month</option>
+                    <option value="year">Year</option>
+                  </select>
+                </label>
+                {(chartView === 'day' || chartView === 'month') && (
+                  <label>
+                    Year:
+                    <input type="number" value={selectedYear} onChange={(e) => setSelectedYear(e.target.value)} className="filter-input" />
+                  </label>
+                )}
+                {chartView === 'day' && (
+                  <label>
+                    Month:
+                    <select value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} className="filter-select">
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <option key={i + 1} value={i + 1}>
+                          {new Date(0, i).toLocaleString('en-US', { month: 'long' })}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                )}
+              </div>
               <Bar options={chartOptions} data={chartData} />
             </div>
           )}

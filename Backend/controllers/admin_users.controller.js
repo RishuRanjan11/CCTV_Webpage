@@ -90,23 +90,39 @@ export const getDashboardStats = async (req, res) => {
       };
     }
 
-    // Use aggregation for sales data for the chart
+    // --- Chart Data Aggregation ---
+    const { groupBy = 'month', year, month } = req.query;
+    const matchStage = { status: { $ne: "Cancelled" } };
+    let groupStage = {};
+
+    const targetYear = year ? parseInt(year) : new Date().getFullYear();
+
+    if (groupBy === 'year') {
+      // Group by year across all time
+      groupStage = { _id: { $year: "$createdAt" }, totalSales: { $sum: "$totalAmount" } };
+    } else if (groupBy === 'month') {
+      // Group by month for a specific year
+      matchStage.createdAt = {
+        $gte: new Date(`${targetYear}-01-01T00:00:00.000Z`),
+        $lt: new Date(`${targetYear + 1}-01-01T00:00:00.000Z`),
+      };
+      groupStage = { _id: { $month: "$createdAt" }, totalSales: { $sum: "$totalAmount" } };
+    } else { // Default to 'day'
+      // Group by day for a specific month and year
+      const targetMonth = month ? parseInt(month) : new Date().getMonth() + 1;
+      const startDate = new Date(targetYear, targetMonth - 1, 1);
+      const endDate = new Date(targetYear, targetMonth, 1);
+      matchStage.createdAt = { $gte: startDate, $lt: endDate };
+      groupStage = { _id: { $dayOfMonth: "$createdAt" }, totalSales: { $sum: "$totalAmount" } };
+    }
+
     const salesData = await Order.aggregate([
-      {
-        $match: {
-          ...dateFilter,
-          status: { $ne: "Cancelled" }, // Exclude cancelled orders from sales
-        },
-      },
-      {
-        $group: {
-          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-          totalSales: { $sum: "$totalAmount" },
-        },
-      },
+      { $match: matchStage },
+      { $group: groupStage },
       { $sort: { _id: 1 } }, // Sort by date
     ]);
 
+    // --- Card Stats (uses separate dateFilter) ---
     const orders = await Order.find(dateFilter);
 
     let totalSales = 0;
