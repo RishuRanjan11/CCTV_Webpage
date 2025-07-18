@@ -6,7 +6,8 @@ import path from "path";
 import { connectDB } from "./lib/db.js";
 import authRoutes from "./routes/auth.route.js";
 import cartRoutes from "./routes/cart.route.js";
-import adminRoutes from "./routes/admin.route.js";
+import adminRoutes from "./routes/admin_users.route.js";
+import couponRoutes from "./routes/coupon.route.js";
 dotenv.config({});
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(express.json({ limit: "10mb" }));
 app.use("/api/auth", authRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/coupons", couponRoutes);
 app.listen(PORT, (req, res) => {
   console.log(`Server is Running at http://localhost:${PORT}`);
   connectDB();

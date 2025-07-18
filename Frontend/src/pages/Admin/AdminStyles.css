@@ -361,7 +361,8 @@
 }
 
 .coupon-form input[type="text"],
-.coupon-form input[type="number"] {
+.coupon-form input[type="number"],
+.coupon-form input[type="date"] {
   flex: 1;
   padding: 10px;
   border-radius: 6px;
