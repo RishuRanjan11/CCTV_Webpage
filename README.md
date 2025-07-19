@@ -68,3 +68,40 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 ### `npm run build` fails to minify
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+
+
+
+
+
+# to add access of server
+
+get the .pub (public file) SSH 
+nano ~/.ssh/authorised_key
+paste the key at end
+
+# For Frontend
+
+npm install
+npm run build
+
+pm2 start serve --name frontend -- -s build -l 3000
+
+# Backend:
+npm install
+pm2 start npm --name backend -- run dev
+pm2 restart backend
+
+# Login to server
+ssh root@domainname
+npm pull origin (jo v branch ka naam hai)
+git add .
+git commit -am "message"
+git push origin (jo v branch hai)
+
+
+# update code
+git branch
+git status
+(if no change): git pull origin (branch name)
+
+# restart pm2
