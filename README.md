@@ -88,7 +88,7 @@ pm2 start serve --name frontend -- -s build -l 3000
 
 # Backend:
 npm install
-pm2 start npm --name backend -- run dev
+pm2 start npm --name backend -- run dev #(only first time)
 pm2 restart backend
 
 # Login to server

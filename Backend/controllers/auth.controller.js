@@ -1,9 +1,9 @@
 import crypto from "crypto";
-import nodemailer from "nodemailer";
 import User from "../models/user.model.js";
 import Token from "../models/token.model.js";
 import jwt from "jsonwebtoken";
 import Otp from "../models/otp.model.js";
+import { Resend } from "resend";
 
 const generateToken = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -185,29 +185,24 @@ export const sendOTP = async (req, res) => {
       expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min expiry
     });
 
-    // Email Transport
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER, // your email
-        pass: process.env.EMAIL_PASS, // app password
-      },
-      connectionTimeout: 15 * 1000, // 15 seconds. Fail fast!
-    });
+    // --- Resend Email Transport ---
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await transporter.sendMail({
-      from: `"CCTV Digital Surveillance" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: `CCTV Digital Surveillance <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "Your OTP Code",
+      html: `<p>Your OTP is <strong>${otpCode}</strong>. It will expire in 5 minutes.</p>`,
       text: `Your OTP is ${otpCode}. It will expire in 5 minutes.`,
     });
 
     res.json({ message: "OTP sent to email" });
   } catch (error) {
-    console.log("Error sending OTP", error.message);
-    res.status(500).json({ message: "Failed to send OTP" });
+    console.error("Error sending OTP:", error);
+    res.status(500).json({
+      message: "Failed to send OTP",
+      error: error.message,
+    });
   }
 };
 
@@ -248,21 +243,14 @@ export const forgotPassword = async (req, res) => {
 
     const resetLink = `${process.env.FRONTEND_DOMAIN_NAME}/reset-password/${token}`;
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-      connectionTimeout: 15 * 1000, // 15 seconds. Fail fast!
-    });
+    // --- Resend Email Transport ---
+    const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await transporter.sendMail({
-      from: `"CCTV Digital Surveillance" <${process.env.EMAIL_USER}>`,
+    await resend.emails.send({
+      from: `CCTV Digital Surveillance <${process.env.SENDER_EMAIL}>`,
       to: user.email,
       subject: "Password Reset",
+      html: `<p>You requested a password reset. Click the link below to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
       text: `Click here to reset: ${resetLink}`,
     });
 
