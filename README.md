@@ -104,4 +104,8 @@ git branch
 git status
 (if no change): git pull origin (branch name)
 
-# restart pm2
+# to update role as admin
+
+db.users.updateOne(
+  { _id: ObjectId('687b99b7e1c64f347a7d712b') }, { $set: { role: "admin" } }
+)
