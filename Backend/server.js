@@ -23,7 +23,7 @@ const PORT = process.env.PORT || 5000; // Changed port to 5000
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.FRONTEND_DOMAIN_NAME,
     credentials: true, // Important for cookies to be sent
   })
 );

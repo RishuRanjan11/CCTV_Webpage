@@ -243,7 +243,7 @@ export const forgotPassword = async (req, res) => {
     user.resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
     await user.save();
 
-    const resetLink = `http://localhost:3000/reset-password/${token}`;
+    const resetLink = `${process.env.FRONTEND_DOMAIN_NAME}/reset-password/${token}`;
 
     const transporter = nodemailer.createTransport({
       service: "Gmail", // or use SMTP config
