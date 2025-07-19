@@ -187,11 +187,14 @@ export const sendOTP = async (req, res) => {
 
     // Email Transport
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER, // your email
         pass: process.env.EMAIL_PASS, // app password
       },
+      connectionTimeout: 15 * 1000, // 15 seconds. Fail fast!
     });
 
     await transporter.sendMail({
@@ -246,11 +249,14 @@ export const forgotPassword = async (req, res) => {
     const resetLink = `${process.env.FRONTEND_DOMAIN_NAME}/reset-password/${token}`;
 
     const transporter = nodemailer.createTransport({
-      service: "Gmail", // or use SMTP config
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
+      connectionTimeout: 15 * 1000, // 15 seconds. Fail fast!
     });
 
     await transporter.sendMail({
