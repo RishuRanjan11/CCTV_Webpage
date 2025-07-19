@@ -1,6 +1,6 @@
-dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 import express from "express";
 import dotenv from "dotenv";
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
