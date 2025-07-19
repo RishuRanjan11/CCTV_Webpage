@@ -54,7 +54,6 @@ const ResetPassword = () => {
     setError("");
 
     // Here you would send data to backend
-    console.log("User Data:", formData);
     try {
       const res = await axios.post(`/auth/reset-password/${token}`, {
         newPassword: formData.password,

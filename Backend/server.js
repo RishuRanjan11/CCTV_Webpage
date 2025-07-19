@@ -40,15 +40,3 @@ app.use("/api/coupons", couponRoutes);
 app.listen(PORT, (req, res) => {
   connectDB();
 });
-// Log environment variables to verify they are loaded correctly
-console.log("--- Verifying Environment Variables ---");
-console.log("PORT:", process.env.PORT);
-console.log("MONGO_URI:", process.env.MONGO_URI);
-console.log("DB_NAME:", process.env.DB_NAME);
-console.log("ACCESS_TOKEN_SECRET:", process.env.ACCESS_TOKEN_SECRET);
-console.log("REFRESH_TOKEN_SECRET:", process.env.REFRESH_TOKEN_SECRET);
-console.log("CLOUDINARY_CLOUD_NAME:", process.env.CLOUDINARY_CLOUD_NAME);
-console.log("CLOUDINARY_API_KEY:", process.env.CLOUDINARY_API_KEY);
-console.log("CLOUDINARY_API_SECRET:", process.env.CLOUDINARY_API_SECRET);
-console.log("FRONTEND_DOMAIN_NAME:", process.env.FRONTEND_DOMAIN_NAME);
-console.log("------------------------------------");
