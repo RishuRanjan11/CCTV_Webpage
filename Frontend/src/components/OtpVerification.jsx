@@ -12,7 +12,7 @@ const OtpVerification = ({ onVerify }) => {
   const { signup } = useUserStore();
 
   const [resendDisabled, setResendDisabled] = useState(false);
-  const [timer, setTimer] = useState(60); // countdown from 60
+  const [timer, setTimer] = useState(30); // countdown from 30
 
   // Countdown effect
   useEffect(() => {
@@ -87,7 +87,7 @@ const OtpVerification = ({ onVerify }) => {
   return (
     <div className="otp-container">
       <h2>OTP Verification</h2>
-      <p>Enter the 6-digit code sent to your registered number/email.</p>
+      <p>Enter the 6-digit code sent to your registered email.</p>
       <div className="otp-inputs">
         {otp.map((digit, idx) => (
           <input

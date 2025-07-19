@@ -16,7 +16,7 @@ const ProductsPage = () => {
   const [error, setError] = useState(null);
   const [showPopup, setShowPopup] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const productsPerPage = 25;
+  const productsPerPage = 24;
 
   useEffect(() => {
     fetchAllProducts();
