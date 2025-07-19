@@ -1,6 +1,5 @@
 import express from "express";
 import dotenv from "dotenv";
-dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import path from "path";
@@ -12,12 +11,12 @@ import productRoutes from "./routes/product.route.js";
 import orderRoutes from "./routes/order.route.js";
 import adminRoutes from "./routes/admin_users.route.js";
 import couponRoutes from "./routes/coupon.route.js";
-import cloudinary from "./lib/cloudinary.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Load environment variables from the .env file in the project's root directory (one level up).
+dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 const app = express();
 const PORT = process.env.PORT || 5000; // Changed port to 5000
