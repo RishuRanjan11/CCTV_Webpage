@@ -1,10 +1,10 @@
 import { v2 as cloudinary } from "cloudinary";
-import path from "path";
-import { fileURLToPath } from "url";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-// Load environment variables from the .env file in the project's root directory (one level up).
-dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
+// import path from "path";
+// import { fileURLToPath } from "url";
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+// // Load environment variables from the .env file in the project's root directory (one level up).
+// dotenv.config({ path: path.resolve(__dirname, "..", ".env") });
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
