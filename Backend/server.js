@@ -11,7 +11,7 @@ import productRoutes from "./routes/product.route.js";
 import orderRoutes from "./routes/order.route.js";
 import adminRoutes from "./routes/admin_users.route.js";
 import couponRoutes from "./routes/coupon.route.js";
-import cloudinary from "./lib/cloudinary.js";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
