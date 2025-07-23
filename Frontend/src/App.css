@@ -60,15 +60,16 @@ body {
     gap: 15px;
     z-index: 1000;
 }
-.social-links img {
-    width: 40px;
-    height: 40px;
+.social-links img
+{
+    width: 60px;
+    height: 60px;
 }
 .top-links {
     top: 20%; /* Social links starting from 20% top */
 }
 .bottom-links {
-    bottom: 20px; /* Social links fixed at 20px from bottom */
+    bottom: 100px; /* Social links fixed at 100px from bottom */
 }
 
 

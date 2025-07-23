@@ -59,7 +59,7 @@ function App() {
       <Toaster position="top-center" reverseOrder={false} />
       {/* Social Links */}
       <div className="social-links top-links">
-        <a href="https://www.instagram.com/">
+        <a href="https://www.instagram.com/digital_surveillance_/profilecard/?igsh=MWF6bTI0bDk1N29mYw==">
           <img
             src="https://img.icons8.com/color/48/instagram-new--v1.png"
             alt="Instagram"
