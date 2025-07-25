@@ -63,12 +63,12 @@
 }
 
 .product-card img {
-  max-width: 100%;
-  border-radius: 10px;
-  height: auto;
   width: 200px;
   height: 200px;
+  max-width: none;
   object-fit: cover;
+  border-radius: 10px;
+  display: block;
 }
 
 .product-card h3 {
