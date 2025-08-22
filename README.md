@@ -107,5 +107,5 @@ git status
 # to update role as admin
 
 db.users.updateOne(
-  { _id: ObjectId('687b99b7e1c64f347a7d712b') }, { $set: { role: "admin" } }
+  { _id: ObjectId('68a856fea9995691741dba76'), }, { $set: { role: "admin" } }
 )
