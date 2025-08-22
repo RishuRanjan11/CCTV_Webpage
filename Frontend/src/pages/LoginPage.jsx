@@ -44,7 +44,7 @@ const LoginPage = () => {
             <p>
               Don't have an account? <Link to="/signup">Create an Account</Link>
             </p>
-            <Link to="/forgot-password">Forgot Password?</Link>
+            <Link to="/forgot-password">Forgot Pass?</Link>
           </div>
         </div>
       </div>
