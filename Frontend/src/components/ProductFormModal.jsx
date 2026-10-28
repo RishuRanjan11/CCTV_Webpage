@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import "../pages/Admin/AdminStyles.css";
 import { useProductStore } from "../stores/useProductStore";
 
+const MAX_IMAGE_SIZE = 7 * 1024 * 1024;
+
 const ProductFormModal = ({ show, onClose, onSave, product }) => {
   const { createProduct, editProduct, fetchAllProducts } = useProductStore();
   const [formData, setFormData] = useState({
@@ -44,6 +46,12 @@ const ProductFormModal = ({ show, onClose, onSave, product }) => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        alert("Please select an image smaller than 7 MB.");
+        e.target.value = "";
+        return;
+      }
+
       const reader = new FileReader();
 
       reader.onloadend = () => {

@@ -2,7 +2,7 @@
   "name": "cctv-webpage",
   "private": true,
   "scripts": {
-    "build": "cd frontend && npm install && npm run build && cd ../backend && npm install",
-    "start": "cd backend && npm start"
+    "build": "npm ci --prefix Backend && npm ci --prefix Frontend && npm run build --prefix Frontend",
+    "start": "npm start --prefix Backend"
   }
 }

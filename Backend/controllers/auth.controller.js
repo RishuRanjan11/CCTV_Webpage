@@ -240,7 +240,11 @@ export const forgotPassword = async (req, res) => {
     user.resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 15); // 15 minutes
     await user.save();
 
-    const resetLink = `${process.env.FRONTEND_DOMAIN_NAME}/reset-password/${token}`;
+    const frontendDomain =
+      process.env.FRONTEND_DOMAIN_NAME ||
+      process.env.RENDER_EXTERNAL_URL ||
+      "http://localhost:3000";
+    const resetLink = `${frontendDomain.replace(/\/+$/, "")}/reset-password/${token}`;
 
     // --- Resend Email Transport ---
     const resend = new Resend(process.env.RESEND_API_KEY);

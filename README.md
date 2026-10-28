@@ -1,111 +1,92 @@
-# Getting Started with Create React App
+# CCTV Digital Surveillance Store
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains a React storefront and an Express/MongoDB API. For a free demo deployment, the Render web service serves both the built frontend and API from one URL. Keeping them on the same origin is important because authentication uses secure, HTTP-only cookies.
 
-## Available Scripts
+## Run locally
 
-In the project directory, you can run:
+1. Install dependencies from the repository root:
 
-### `npm start`
+   ```sh
+   npm ci --prefix Backend
+   npm ci --prefix Frontend
+   ```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+2. Create a root-level `.env` file with the environment variables listed below. Keep this file private; it is ignored by Git.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+3. In one terminal, start the API:
 
-### `npm test`
+   ```sh
+   npm start --prefix Backend
+   ```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+4. In another terminal, start the React app:
 
-### `npm run build`
+   ```sh
+   npm start --prefix Frontend
+   ```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+The local frontend is at `http://localhost:3000` and the API is at `http://localhost:5000`. Create a production frontend build with `npm run build`.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Free demo deployment on Render
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+The checked-in [render.yaml](./render.yaml) defines a free Render web service that builds the frontend, starts the API, and serves both from the same host. Render assigns the public `onrender.com` URL; no custom domain is required.
 
-### `npm run eject`
+### 1. Prepare the free-tier services
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+- Create a MongoDB Atlas free M0 cluster and a database user. Add the outbound IP ranges shown in the Render service settings to the Atlas network access list. Avoid opening Atlas to all IPs unless you understand and accept that exposure.
+- Create free-tier Cloudinary and Resend accounts. Configure a sender address/domain that Resend allows you to use.
+- Product images are stored with Cloudinary; do not rely on the Render service's local disk for persistent uploads. Product images are limited to 7 MB so the base64 upload stays within the API request limit.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Deploy the Render Blueprint
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+1. Push this repository to GitHub.
+2. In Render, choose **New → Blueprint**, connect this repository, and select the branch to deploy.
+3. Review the `cctv-storefront` web service from `render.yaml`. Provide the values for the prompted secret variables, then deploy.
+4. If the Blueprint prompts for any variables after deployment, add them in the Render service's **Environment** page and redeploy.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Set these variables in Render:
 
-## Learn More
+| Variable | Value |
+| --- | --- |
+| `MONGO_URI` | Atlas connection URI prefix ending in `/`, e.g. `mongodb+srv://USER:URL_ENCODED_PASSWORD@HOST/`. Keep the database name out of this value. |
+| `DB_NAME` | Database name; defaults to `cctv_store` in the Blueprint. |
+| `ACCESS_TOKEN_SECRET` | A long, random secret unique to this deployment. |
+| `REFRESH_TOKEN_SECRET` | A different long, random secret. |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name. |
+| `CLOUDINARY_API_KEY` | Cloudinary API key. |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret. |
+| `RESEND_API_KEY` | Resend API key used to send OTP and password-reset email. |
+| `SENDER_EMAIL` | Verified sender address for Resend. |
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Generate each token secret independently with:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```sh
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
 
-### Code Splitting
+Render supplies `PORT` and `RENDER_EXTERNAL_URL`. The app uses the latter for password-reset links. If you later attach a custom domain, set `FRONTEND_DOMAIN_NAME` to its full HTTPS origin (without a trailing slash). Never commit secret values or upload the local `.env` file to Git.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Check `https://<your-service>.onrender.com/health` after deployment; it should return `{"status":"ok"}`. Then test the storefront, product listing, signup/login, email OTP, and image upload using real accounts and provider credentials.
 
-### Analyzing the Bundle Size
+### Free-tier limitations
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Render's free web services spin down after 15 minutes without traffic and can take about a minute to wake. They have ephemeral filesystems and limited monthly usage, so this is appropriate for a demo, not a production storefront. MongoDB Atlas M0 also has a small storage limit. Check each provider's current quotas and terms before launch; free tiers and limits can change.
 
-### Making a Progressive Web App
+## Environment variables
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+The backend reads a root `.env` file for local development and environment variables for hosted deployments:
 
-### Advanced Configuration
+```text
+MONGO_URI=
+DB_NAME=
+ACCESS_TOKEN_SECRET=
+REFRESH_TOKEN_SECRET=
+CLOUDINARY_CLOUD_NAME=
+CLOUDINARY_API_KEY=
+CLOUDINARY_API_SECRET=
+RESEND_API_KEY=
+SENDER_EMAIL=
+FRONTEND_DOMAIN_NAME=http://localhost:3000
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
-
-
-
-
-
-# to add access of server
-
-get the .pub (public file) SSH 
-nano ~/.ssh/authorised_key
-paste the key at end
-
-# For Frontend
-
-npm install
-npm run build
-
-pm2 start serve --name frontend -- -s build -l 3000
-
-# Backend:
-npm install
-pm2 start npm --name backend -- run dev #(only first time)
-pm2 restart backend
-
-# Login to server
-ssh root@domainname
-npm pull origin (jo v branch ka naam hai)
-git add .
-git commit -am "message"
-git push origin (jo v branch hai)
-
-
-# update code
-git branch
-git status
-(if no change): git pull origin (branch name)
-
-# to update role as admin
-
-db.users.updateOne(
-  { _id: ObjectId('687b99b7e1c64f347a7d712b') }, { $set: { role: "admin" } }
-)
+`FRONTEND_DOMAIN_NAME` is optional locally and in Render. For local email links, set it to `http://localhost:3000`; in Render it defaults to the service URL.
