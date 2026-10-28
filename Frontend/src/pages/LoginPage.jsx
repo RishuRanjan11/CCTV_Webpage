@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Footer from "../components/Footer";
 import "./LoginPage.css";
 import { useUserStore } from "../stores/useUserStore";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -42,9 +42,9 @@ const LoginPage = () => {
 
           <div className="signup-link">
             <p>
-              Don't have an account? <a href="/signup">Create an Account</a>
+              Don't have an account? <Link to="/signup">Create an Account</Link>
             </p>
-            <a href="/forgot-password">Forgot Password?</a>
+            <Link to="/forgot-password">Forgot Password?</Link>
           </div>
         </div>
       </div>
