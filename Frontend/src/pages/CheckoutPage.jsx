@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useUserStore } from "../stores/useUserStore";
 import { useOrderStore } from "../stores/useOrderStore";
 import { useCartStore } from "../stores/useCartStore";
+import axios from "../lib/axios";
 
 const CheckoutPage = () => {
   const { cartItems, clearCart } = useCartStore();
@@ -13,6 +14,10 @@ const CheckoutPage = () => {
 
   const [address, setAddress] = useState("");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [coupon, setCoupon] = useState(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
 
   useEffect(() => {
     if (!user) {
@@ -23,13 +28,47 @@ const CheckoutPage = () => {
   // Filter out items where the product might have been deleted from the DB
   const validCartItems = cartItems.filter(item => item.product);
 
-  const totalPrice = validCartItems.reduce(
+  const subtotal = validCartItems.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
+  const discountAmount = coupon
+    ? Math.round(((subtotal * coupon.discountPercentage) / 100 + Number.EPSILON) * 100) / 100
+    : 0;
+  const totalPrice = Math.max(0, subtotal - discountAmount);
 
   const handleAddressChange = (e) => {
     setAddress(e.target.value);
+  };
+
+  const handleApplyCoupon = async (e) => {
+    e.preventDefault();
+    if (!couponInput.trim()) {
+      setCouponError("Enter a coupon code.");
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    setCouponError("");
+    try {
+      const response = await axios.post("/coupons/validate", {
+        code: couponInput.trim(),
+      });
+      setCoupon(response.data);
+    } catch (error) {
+      setCoupon(null);
+      setCouponError(
+        error.response?.data?.message || "Could not validate this coupon."
+      );
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponError("");
   };
 
   const handlePlaceOrder = async () => {
@@ -41,15 +80,12 @@ const CheckoutPage = () => {
     }
 
     const orderData = {
-      userId: user._id,
       products: validCartItems.map((item) => ({
         product: item.product._id,
         quantity: item.quantity,
-        price: item.product.price,
       })),
-      totalAmount: totalPrice,
       Address: address,
-      phone: user.phone,
+      couponCode: coupon?.code,
     };
     try {
       await placeOrder(orderData);
@@ -57,7 +93,10 @@ const CheckoutPage = () => {
       await clearCart();
       navigate("/");
     } catch (error) {
-      alert("There was an error placing your order. Please try again.");
+      alert(
+        error.response?.data?.message ||
+          "There was an error placing your order. Please try again."
+      );
     } finally {
       setIsPlacingOrder(false);
     }
@@ -92,7 +131,51 @@ const CheckoutPage = () => {
                 </li>
               ))}
             </ul>
-            <h3 className="checkout-total">Total: ₹{totalPrice}</h3>
+            <form className="checkout-coupon" onSubmit={handleApplyCoupon}>
+              <h3>Coupon Code</h3>
+              <div className="checkout-coupon-controls">
+                <input
+                  type="text"
+                  value={couponInput}
+                  onChange={(e) => {
+                    setCouponInput(e.target.value);
+                    setCoupon(null);
+                    setCouponError("");
+                  }}
+                  placeholder="Enter coupon code"
+                  aria-label="Coupon code"
+                  disabled={Boolean(coupon) || isApplyingCoupon}
+                />
+                {coupon ? (
+                  <button type="button" onClick={handleRemoveCoupon}>
+                    Remove
+                  </button>
+                ) : (
+                  <button type="submit" disabled={isApplyingCoupon}>
+                    {isApplyingCoupon ? "Applying..." : "Apply"}
+                  </button>
+                )}
+              </div>
+              {couponError && (
+                <p className="checkout-coupon-error" role="alert">
+                  {couponError}
+                </p>
+              )}
+              {coupon && (
+                <p className="checkout-coupon-success" role="status">
+                  {coupon.code} applied ({coupon.discountPercentage}% off).
+                </p>
+              )}
+            </form>
+            <div className="checkout-price-summary">
+              <p>Subtotal: ₹{subtotal.toFixed(2)}</p>
+              {coupon && (
+                <p>Coupon discount: -₹{discountAmount.toFixed(2)}</p>
+              )}
+              <h3 className="checkout-total">
+                Total: ₹{totalPrice.toFixed(2)}
+              </h3>
+            </div>
           </div>
 
           <div className="checkout-form">

@@ -1,37 +1,95 @@
 import Order from "../models/order.model.js";
 import User from "../models/user.model.js";
+import Product from "../models/product.model.js";
+import mongoose from "mongoose";
+import { validateCouponForUser } from "../lib/coupons.js";
 
 // Place a new order
 export const placeOrder = async (req, res) => {
   try {
-    const { userId, products, totalAmount, Address, phone } = req.body;
+    const { products, Address, couponCode } = req.body;
     if (
-      !userId ||
-      !products ||
+      !Array.isArray(products) ||
       products.length === 0 ||
-      !totalAmount ||
-      !Address ||
-      !phone
+      typeof Address !== "string" ||
+      !Address.trim() ||
+      (couponCode != null && typeof couponCode !== "string")
     ) {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
+    const quantitiesByProduct = new Map();
+    for (const item of products) {
+      if (
+        !item ||
+        !mongoose.Types.ObjectId.isValid(item.product) ||
+        !Number.isInteger(item.quantity) ||
+        item.quantity < 1
+      ) {
+        return res.status(400).json({ message: "Invalid order products." });
+      }
+
+      const productId = item.product.toString();
+      quantitiesByProduct.set(
+        productId,
+        (quantitiesByProduct.get(productId) || 0) + item.quantity
+      );
+    }
+
+    const productIds = [...quantitiesByProduct.keys()];
+    const databaseProducts = await Product.find({ _id: { $in: productIds } });
+    if (databaseProducts.length !== productIds.length) {
+      return res.status(400).json({
+        message: "One or more products in your cart are no longer available.",
+      });
+    }
+
+    const orderProducts = databaseProducts.map((product) => ({
+      product: product._id,
+      quantity: quantitiesByProduct.get(product._id.toString()),
+      price: product.price,
+    }));
+    const subtotal = orderProducts.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
+
+    let appliedCoupon;
+    let discountAmount = 0;
+    if (couponCode?.trim()) {
+      const result = await validateCouponForUser(couponCode, req.user);
+      if (result.message) {
+        return res.status(result.status).json({ message: result.message });
+      }
+
+      appliedCoupon = result.coupon;
+      discountAmount =
+        Math.round(
+          ((subtotal * appliedCoupon.discountPercentage) / 100 +
+            Number.EPSILON) *
+            100
+        ) / 100;
+    }
+
+    const totalAmount = Math.max(0, subtotal - discountAmount);
     const newOrder = new Order({
-      user: userId,
-      products,
+      user: req.user._id,
+      products: orderProducts,
+      subtotal,
+      couponCode: appliedCoupon?.code,
+      discountPercentage: appliedCoupon?.discountPercentage || 0,
+      discountAmount,
       totalAmount,
       Address,
-      phone,
+      phone: req.user.phone,
     });
 
     await newOrder.save();
 
     // After successful order placement, update the user's first-time buyer status
-    const user = await User.findById(userId);
-    if (user && user.isFirstTimeBuyer) {
-      user.isFirstTimeBuyer = false;
-      await user.save();
-    }
+    await User.findByIdAndUpdate(req.user._id, {
+      $set: { isFirstTimeBuyer: false },
+    });
 
     res
       .status(201)

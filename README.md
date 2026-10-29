@@ -70,6 +70,10 @@ Render supplies `PORT` and `RENDER_EXTERNAL_URL`. The app uses the latter for pa
 
 Check `https://<your-service>.onrender.com/health` after deployment; it should return `{"status":"ok"}`. Then test the storefront, product listing, signup/login, email OTP, and image upload using real accounts and provider credentials.
 
+### Customer coupon checkout
+
+Admins create coupons from **Admin → Coupons**. Signed-in customers can enter a coupon at checkout. The API validates expiration and first-time-buyer eligibility both when the coupon is applied and again when the order is placed. Order totals and product prices are recalculated from database records on the server; client-submitted prices and totals are not trusted.
+
 ### Free-tier limitations
 
 Render's free web services spin down after 15 minutes without traffic and can take about a minute to wake. They have ephemeral filesystems and limited monthly usage, so this is appropriate for a demo, not a production storefront. MongoDB Atlas M0 also has a small storage limit. Check each provider's current quotas and terms before launch; free tiers and limits can change.

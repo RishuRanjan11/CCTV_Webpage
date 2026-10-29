@@ -55,7 +55,9 @@ const AdminCoupons = () => {
       code: form.code.toUpperCase(),
       discountPercentage: parseInt(form.discountPercentage, 10),
       isFirstTimeOnly: form.isFirstTimeOnly,
-      expirationDate: new Date(form.expirationDate).toISOString(),
+      expirationDate: new Date(
+        `${form.expirationDate}T23:59:59.999`
+      ).toISOString(),
     };
 
     if (isNaN(payload.discountPercentage) || payload.discountPercentage < 0 || payload.discountPercentage > 100) {

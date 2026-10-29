@@ -208,6 +208,12 @@ const MyAccount = () => {
                     </div>
                     <div>
                       <p><strong>Total:</strong> Rs. {order.totalAmount}</p>
+                      {order.discountAmount > 0 && (
+                        <p>
+                          <strong>Coupon:</strong> {order.couponCode} (-Rs.{" "}
+                          {order.discountAmount.toFixed(2)})
+                        </p>
+                      )}
                       <p>
                         <strong>Status:</strong>{" "}
                         <span

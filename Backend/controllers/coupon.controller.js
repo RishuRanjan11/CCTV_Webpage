@@ -1,5 +1,5 @@
 import Coupon from "../models/coupon.model.js";
-import User from "../models/user.model.js";
+import { validateCouponForUser } from "../lib/coupons.js";
 
 export const getCoupon = async (req, res) => {
     try {
@@ -33,37 +33,16 @@ export const createCoupon = async (req, res) => {
 
 export const validateCoupon = async (req, res) => {
   try {
-    const { code } = req.body;
-    if (!code) {
-      return res.status(400).json({ message: "Coupon code is required." });
-    }
-
-    // Find the coupon by its code, case-insensitive for better UX
-    const coupon = await Coupon.findOne({ code: { $regex: new RegExp(`^${code}$`, 'i') } });
-
-    if (!coupon) {
-      return res.status(404).json({ message: "Coupon not found or invalid" });
-    }
-
-    if (coupon.expirationDate < new Date()) {
-      // 410 Gone is more specific for expired resources
-      return res.status(410).json({ message: "Coupon has expired" });
-    }
-
-    // If the coupon is for first-time buyers, check the user's status
-    if (coupon.isFirstTimeOnly) {
-      // req.user is available from the protectRoute middleware
-      const user = await User.findById(req.user._id);
-      if (!user || !user.isFirstTimeBuyer) {
-        return res.status(403).json({ message: "This coupon is for first-time buyers only." });
-      }
+    const result = await validateCouponForUser(req.body.code, req.user);
+    if (result.message) {
+      return res.status(result.status).json({ message: result.message });
     }
 
     res.json({
       message: "Coupon is valid",
-      code: coupon.code,
-      discountPercentage: coupon.discountPercentage,
-      isFirstTimeOnly: coupon.isFirstTimeOnly,
+      code: result.coupon.code,
+      discountPercentage: result.coupon.discountPercentage,
+      isFirstTimeOnly: result.coupon.isFirstTimeOnly,
     });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });

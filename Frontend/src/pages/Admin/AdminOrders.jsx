@@ -258,13 +258,29 @@ const AdminOrders = () => {
     y = finalY + 15;
 
     // Check if there is enough space for the total, otherwise add a new page
-    if (y > pageHeight - margin) {
+    if (y > pageHeight - margin - (order.discountAmount > 0 ? 13 : 0)) {
       doc.addPage();
       y = 20; // Reset Y on new page
     }
 
     doc.setFontSize(14);
     doc.setFont("helvetica", "bold");
+    if (order.discountAmount > 0) {
+      const subtotalString = `Subtotal: Rs. ${order.subtotal}`;
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text(subtotalString, pageWidth - margin, y, { align: "right" });
+      y += 6;
+      doc.text(
+        `Coupon ${order.couponCode}: -Rs. ${order.discountAmount}`,
+        pageWidth - margin,
+        y,
+        { align: "right" }
+      );
+      y += 7;
+      doc.setFontSize(14);
+      doc.setFont("helvetica", "bold");
+    }
     // Manually calculate position for robust right-alignment
     const totalString = `Total Amount: Rs. ${order.totalAmount}`;
     const totalStringWidth = doc.getTextWidth(totalString);
@@ -402,6 +418,15 @@ const AdminOrders = () => {
             <p><strong>Customer:</strong> {viewingOrder.user?.name || "N/A"} ({viewingOrder.user?.email || "N/A"})</p>
             <p><strong>Phone:</strong> {viewingOrder.phone}</p>
             <p><strong>Address:</strong> {viewingOrder.Address}</p>
+            {viewingOrder.discountAmount > 0 && (
+              <>
+                <p><strong>Subtotal:</strong> ₹{viewingOrder.subtotal}</p>
+                <p>
+                  <strong>Coupon:</strong> {viewingOrder.couponCode} (-₹
+                  {viewingOrder.discountAmount.toFixed(2)})
+                </p>
+              </>
+            )}
             <h4>Products</h4>
             <ul className="order-details-products">
               {viewingOrder.products.map(({ product, quantity, price }) => (
