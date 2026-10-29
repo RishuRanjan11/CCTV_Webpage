@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 import Token from "../models/token.model.js";
 import jwt from "jsonwebtoken";
 import Otp from "../models/otp.model.js";
-import { Resend } from "resend";
+import { sendEmail } from "../lib/email.js";
 
 const generateToken = (userId) => {
   const accessToken = jwt.sign({ userId }, process.env.ACCESS_TOKEN_SECRET, {
@@ -169,9 +169,9 @@ export const getProfile = async (req, res) => {
 export const sendOTP = async (req, res) => {
   const { email } = req.body;
   try {
-    if (!process.env.RESEND_API_KEY || !process.env.SENDER_EMAIL) {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       return res.status(503).json({
-        message: "Email verification is not configured on the server.",
+        message: "Gmail email delivery is not configured on the server.",
       });
     }
 
@@ -181,23 +181,12 @@ export const sendOTP = async (req, res) => {
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    const { error } = await resend.emails.send({
-      from: `CCTV Digital Surveillance <${process.env.SENDER_EMAIL}>`,
+    await sendEmail({
       to: email,
       subject: "Your OTP Code",
       html: `<p>Your OTP is <strong>${otpCode}</strong>. It will expire in 5 minutes.</p>`,
       text: `Your OTP is ${otpCode}. It will expire in 5 minutes.`,
     });
-
-    if (error) {
-      console.error("Resend email delivery error:", error);
-      return res.status(502).json({
-        message:
-          "Resend rejected the verification email. Check that the API key is valid and the sender domain is verified.",
-      });
-    }
 
     await Otp.deleteMany({ email });
     await Otp.create({
@@ -210,8 +199,7 @@ export const sendOTP = async (req, res) => {
   } catch (error) {
     console.error("Error sending OTP:", error);
     res.status(500).json({
-      message: "Failed to send OTP",
-      error: error.message,
+      message: "Failed to send verification email. Check the Gmail SMTP settings.",
     });
   }
 };
@@ -256,11 +244,7 @@ export const forgotPassword = async (req, res) => {
       "http://localhost:3000";
     const resetLink = `${frontendDomain.replace(/\/+$/, "")}/reset-password/${token}`;
 
-    // --- Resend Email Transport ---
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    await resend.emails.send({
-      from: `CCTV Digital Surveillance <${process.env.SENDER_EMAIL}>`,
+    await sendEmail({
       to: user.email,
       subject: "Password Reset",
       html: `<p>You requested a password reset. Click the link below to reset your password:</p><p><a href="${resetLink}">${resetLink}</a></p>`,
