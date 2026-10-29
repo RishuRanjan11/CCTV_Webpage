@@ -23,7 +23,7 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-      - key: EMAIL_USER
+      - key: BREVO_API_KEY
         sync: false
-      - key: EMAIL_PASS
+      - key: BREVO_SENDER_EMAIL
         sync: false

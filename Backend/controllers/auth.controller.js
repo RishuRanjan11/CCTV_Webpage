@@ -169,9 +169,9 @@ export const getProfile = async (req, res) => {
 export const sendOTP = async (req, res) => {
   const { email } = req.body;
   try {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    if (!process.env.BREVO_API_KEY || !process.env.BREVO_SENDER_EMAIL) {
       return res.status(503).json({
-        message: "Gmail email delivery is not configured on the server.",
+        message: "Brevo email delivery is not configured on the server.",
       });
     }
 
@@ -199,7 +199,7 @@ export const sendOTP = async (req, res) => {
   } catch (error) {
     console.error("Error sending OTP:", error);
     res.status(500).json({
-      message: "Failed to send verification email. Check the Gmail SMTP settings.",
+      message: "Failed to send verification email. Check the email provider settings.",
     });
   }
 };
