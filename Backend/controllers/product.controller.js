@@ -19,6 +19,18 @@ export const getAllFeaturedProducts = async (req, res) => {
   }
 };
 
+export const getLatestProducts = async (_req, res) => {
+  try {
+    const products = await Product.find({})
+      .sort({ createdAt: -1, _id: -1 })
+      .limit(5)
+      .lean();
+    res.json({ products });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error", error: error.message });
+  }
+};
+
 export const createProduct = async (req, res) => {
   try {
     const { name, description, price, image, category } = req.body;

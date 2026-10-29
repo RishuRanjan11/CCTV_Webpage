@@ -97,14 +97,15 @@ export const useProductStore = create((set) => ({
       toast.error(error.response.data.error || "Failed to update product");
     }
   },
-  fetchFeaturedProducts: async () => {
+  fetchLatestProducts: async () => {
     set({ loading: true });
     try {
-      const response = await axios.get("/products/featured");
+      const response = await axios.get("/products/latest");
       set({ products: response.data.products, loading: false });
 
     } catch (error) {
       set({ error: "Failed to fetch products", loading: false });
+      toast.error(error.response?.data?.message || "Failed to load latest products.");
     }
   },
 }));

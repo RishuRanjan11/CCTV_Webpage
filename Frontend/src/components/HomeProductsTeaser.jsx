@@ -1,22 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import "./HomeProductTeaser.css";
 import { useProductStore } from "../stores/useProductStore";
 
 const HomeProductsTeaser = () => {
-  const { fetchFeaturedProducts, products, loading } = useProductStore();
-
-  // const [products, setProducts] = useState([]);
-  // const [loading, setLoading] = useState(true);
-  // const [error, setError] = useState('');
+  const { fetchLatestProducts, products, loading } = useProductStore();
 
   useEffect(() => {
-    fetchFeaturedProducts();
-  }, [fetchFeaturedProducts]);
+    fetchLatestProducts();
+  }, [fetchLatestProducts]);
 
   return (
     <section className="products-section">
-      <h2>Featured Products</h2>
+      <h2>Latest Products</h2>
 
       {loading && <p>Loading...</p>}
       {/* {error && <p className="error">{error}</p>} */}

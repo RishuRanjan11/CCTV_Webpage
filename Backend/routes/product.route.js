@@ -2,6 +2,7 @@ import express from "express";
 import {
   getAllProducts,
   getAllFeaturedProducts,
+  getLatestProducts,
   createProduct,
   deleteProduct,
   getRecommendedProducts,
@@ -14,6 +15,7 @@ import { adminRoute, protectRoute } from "../middleware/auth.middleware.js";
 const router = express.Router();
 
 router.get("/", getAllProducts);
+router.get("/latest", getLatestProducts);
 router.get("/featured", getAllFeaturedProducts);
 router.get("/category/:category", getProductsByCategory);
 router.get("/recommendations", getRecommendedProducts);
