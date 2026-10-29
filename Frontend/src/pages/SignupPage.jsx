@@ -16,14 +16,14 @@ const SignupPage = () => {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const { signup } = useUserStore();
-  const { sendOtp } = useOtpStore();
+  const { sendOtp, loading } = useOtpStore();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
@@ -38,6 +38,10 @@ const SignupPage = () => {
     // Clear error
     setError("");
 
+    const otpSent = await sendOtp(formData.email);
+    if (!otpSent) return;
+
+    navigate("/signup/verify", { state: formData });
     setFormData({
       name: "",
       email: "",
@@ -45,8 +49,6 @@ const SignupPage = () => {
       password: "",
       confirmPassword: "",
     });
-    navigate("/signup/verify", { state: formData });
-    sendOtp(formData.email);
     // signup(formData);
     // Reset form
   };
@@ -107,8 +109,8 @@ const SignupPage = () => {
             Show Passwords
           </div>
 
-          <button type="submit" className="btn-signup">
-            Sign Up
+          <button type="submit" className="btn-signup" disabled={loading}>
+            {loading ? "Sending OTP..." : "Sign Up"}
           </button>
         </form>
         <div className="login-link">

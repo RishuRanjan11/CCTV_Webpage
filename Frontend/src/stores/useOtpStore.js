@@ -17,10 +17,16 @@ export const useOtpStore = create((set) => ({
       });
 
       set({ loading: false, message: res.data.message || "OTP sent!" });
+      return true;
     } catch (err) {
-      const message = err.response?.data?.message || "Failed to send OTP";
+      const message =
+        err.response?.data?.message ||
+        (err.request
+          ? "Could not reach the server. Please try again."
+          : err.message || "Failed to send OTP");
       set({ loading: false, error: message });
       toast.error(message);
+      return false;
     }
   },
 

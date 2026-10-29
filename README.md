@@ -34,7 +34,7 @@ The checked-in [render.yaml](./render.yaml) defines a free Render web service th
 ### 1. Prepare the free-tier services
 
 - Create a MongoDB Atlas free M0 cluster and a database user. Add the outbound IP ranges shown in the Render service settings to the Atlas network access list. Avoid opening Atlas to all IPs unless you understand and accept that exposure.
-- Create free-tier Cloudinary and Resend accounts. Configure a sender address/domain that Resend allows you to use.
+- Create free-tier Cloudinary and Resend accounts. Verify a domain you own in Resend, then set `SENDER_EMAIL` to an address at that verified domain. Resend's test sender is restricted to testing and cannot send signup OTPs to arbitrary recipients.
 - Product images are stored with Cloudinary; do not rely on the Render service's local disk for persistent uploads. Product images are limited to 7 MB so the base64 upload stays within the API request limit.
 
 ### 2. Deploy the Render Blueprint

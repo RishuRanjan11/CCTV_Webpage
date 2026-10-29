@@ -169,31 +169,41 @@ export const getProfile = async (req, res) => {
 export const sendOTP = async (req, res) => {
   const { email } = req.body;
   try {
+    if (!process.env.RESEND_API_KEY || !process.env.SENDER_EMAIL) {
+      return res.status(503).json({
+        message: "Email verification is not configured on the server.",
+      });
+    }
+
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
     }
 
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-
-    const existingOtp = await Otp.findOne({ email });
-    if (existingOtp) await Otp.deleteOne({ email });
-
-    await Otp.create({
-      email,
-      otp: otpCode,
-      expiresAt: new Date(Date.now() + 5 * 60 * 1000), // 5 min expiry
-    });
-
-    // --- Resend Email Transport ---
     const resend = new Resend(process.env.RESEND_API_KEY);
 
-    await resend.emails.send({
+    const { error } = await resend.emails.send({
       from: `CCTV Digital Surveillance <${process.env.SENDER_EMAIL}>`,
       to: email,
       subject: "Your OTP Code",
       html: `<p>Your OTP is <strong>${otpCode}</strong>. It will expire in 5 minutes.</p>`,
       text: `Your OTP is ${otpCode}. It will expire in 5 minutes.`,
+    });
+
+    if (error) {
+      console.error("Resend email delivery error:", error);
+      return res.status(502).json({
+        message:
+          "Resend rejected the verification email. Check that the API key is valid and the sender domain is verified.",
+      });
+    }
+
+    await Otp.deleteMany({ email });
+    await Otp.create({
+      email,
+      otp: otpCode,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000),
     });
 
     res.json({ message: "OTP sent to email" });
