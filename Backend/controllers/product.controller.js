@@ -13,11 +13,6 @@ export const getAllProducts = async (req, res) => {
 export const getAllFeaturedProducts = async (req, res) => {
   try {
     const featuredProducts = await Product.find({ isFeatured: true }).lean(); //Find all featured products
-
-    if (!featuredProducts || featuredProducts.length === 0) {
-      return res.status(404).json({ message: "No featured products found" });
-    }
-
     res.json({ products: featuredProducts });
   } catch (error) {
     res.status(500).json({ message: "Server Error", error: error.message });
