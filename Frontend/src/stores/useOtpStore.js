@@ -18,10 +18,9 @@ export const useOtpStore = create((set) => ({
 
       set({ loading: false, message: res.data.message || "OTP sent!" });
     } catch (err) {
-      set({
-        loading: false,
-        error: err.response?.data?.message || "Failed to send OTP",
-      });
+      const message = err.response?.data?.message || "Failed to send OTP";
+      set({ loading: false, error: message });
+      toast.error(message);
     }
   },
 
